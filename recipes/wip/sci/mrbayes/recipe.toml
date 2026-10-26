@@ -1,0 +1,6 @@
+#TODO don't recognize the carcinization target
+[source]
+git = "https://github.com/NBISweden/MrBayes"
+shallow_clone = true
+[build]
+template = "configure"

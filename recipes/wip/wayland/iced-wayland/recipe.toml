@@ -1,0 +1,13 @@
+#TODO fix bad wayland performance
+[source]
+git = "https://github.com/jackpot51/iced.git"
+branch = "redox-wayland"
+shallow_clone = true
+[build]
+dependencies = [
+    "libwayland",
+    "libxkbcommon",
+]
+template = "cargo"
+cargopackages = ["sctk_lazy"]
+cargopackagesprefixed = true

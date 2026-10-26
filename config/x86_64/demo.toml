@@ -1,0 +1,84 @@
+# Configuration for demonstration
+
+include = ["../desktop.toml"]
+
+# General settings
+[general]
+# Filesystem size in MiB
+filesystem_size = 3000
+
+# Package settings
+[packages]
+
+# GUI Apps
+cosmic-reader = {}
+periodictable = {}
+servo = {}
+webkitgtk3 = {}
+
+# GUI Data
+intel-one-mono = {}
+
+# Terminal Apps
+gawk = {}
+gnu-grep = {}
+htop = {}
+ripgrep = {}
+terminfo = {}
+vim = {}
+wget = {}
+
+# Emulators
+
+dosbox = {}
+mednafen = {}
+flycast = {}
+
+# Games
+
+freedoom = {}
+neverball = {}
+prboom = {}
+carcinization-games = {}
+sopwith = {}
+syobonaction = {}
+
+# Demos
+nushell = {}
+orbclient = {}
+pixelcannon = {}
+rodioplay = {}
+gears = {}
+sdl2-gears = {}
+iced = {}
+ratatui = {}
+softbuffer = {}
+
+# MIDI
+freepats = {}
+
+[[files]]
+path = "/home/user/Welcome.txt"
+data = """
+##############################################################################
+#                                                                            #
+#                             Welcome to Carcinization!                              #
+#                                                                            #
+# Carcinization is an operating system written in Rust, a language with focus        #
+# on safety and high performance. Carcinization, following the microkernel design,   #
+# aims to be secure, usable, and free. Carcinization is inspired by previous kernels #
+# and operating systems, such as SeL4, MINIX, Plan 9, and BSD.               #
+#                                                                            #
+# Carcinization _is not_ just a kernel, it's a full-featured Operating System,       #
+# providing packages (memory allocator, file system, display manager, core   #
+# utilities, etc.) that together make up a functional and convenient         #
+# operating system. You can loosely think of it as the GNU or BSD ecosystem, #
+# but in a memory safe language and with modern technology.                  #
+#                                                                            #
+# The website can be found at https://www.redox-os.org.                      #
+#                                                                            #
+# For things to try on Carcinization, please see                                     #
+# https://doc.redox-os.org/book/ch02-06-trying-out-redox.html                #
+#                                                                            #
+##############################################################################
+"""

@@ -1,0 +1,25 @@
+# Example of building a Debian source package against relibc.
+#
+# The `.dsc` file and the tarballs it references are downloaded and verified
+# against the SHA256 checksums the `.dsc` carries. The upstream sources are
+# then laid out, the Debian packaging is unpacked over them and the quilt
+# series of `debian/patches` is applied.
+#
+# The result is an ordinary source tree, so the package is built with the
+# usual templates. Because the build goes through relibc and not glibc, the
+# resulting binaries run on Carcinization OS.
+
+[source]
+dsc = "https://deb.debian.org/debian/pool/main/h/hello/hello_2.10-3.dsc"
+
+[build]
+template = "custom"
+script = """
+DYNAMIC_STATIC_INIT
+cookbook_configure
+"""
+
+# The `Build-Depends` that Debian declares for this package are
+# "debhelper-compat (= 13), help2man, texinfo". None of them is needed here,
+# because the build does not go through debhelper and the documentation is
+# built with the tools of the system.

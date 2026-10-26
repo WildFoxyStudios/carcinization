@@ -1,0 +1,7 @@
+[package]
+dependencies = [
+    "orbital",
+    "orbdata",
+    "orbutils",
+]
+description = "Minimal components for desktop"

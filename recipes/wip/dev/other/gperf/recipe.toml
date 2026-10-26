@@ -1,0 +1,7 @@
+#TODO Promote
+[source]
+tar = "https://ftp.gnu.org/gnu/gperf/gperf-3.3.tar.gz"
+blake3 = "6ad90515e3b8ac191a8ecef4e75fbb260236f8e78078ac099d5eccc175af0782"
+
+[build]
+template = "configure"

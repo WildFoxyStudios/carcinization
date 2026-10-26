@@ -1,0 +1,10 @@
+# TODO compiled and tested, can promote
+[source]
+git = "https://github.com/friendlymatthew/gabagool"
+shallow_clone = true
+[build]
+template = "custom"
+script = """
+DYNAMIC_INIT
+cookbook_cargo_packages gabagool
+"""

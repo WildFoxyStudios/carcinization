@@ -1,0 +1,18 @@
+[source]
+tar = "https://ftp.gnu.org/gnu/readline/readline-8.3.tar.gz"
+blake3 = "7109f094062bda387a0c16b4875375b96e36437bebbbd8d8f91bb27ba01d687f"
+patches = [
+    "carcinization.patch"
+]
+
+[build]
+template = "custom"
+dependencies = [
+    "ncursesw",
+]
+script = """
+DYNAMIC_INIT
+COOKBOOK_MAKE_FLAGS=(SHLIB_LIBS="-lncursesw")
+cookbook_configure
+OS=$(echo "${TARGET}" | cut -d - -f3)
+"""

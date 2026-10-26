@@ -1,0 +1,85 @@
+[package]
+name = "carcinization_cookbook"
+version = "0.1.0"
+authors = ["Jeremy Soller <jackpot51@gmail.com>"]
+edition = "2024"
+default-run = "repo"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "cookbook_carcinizer"
+path = "src/bin/cookbook_carcinizer.rs"
+
+[[bin]]
+name = "repo"
+path = "src/bin/repo/main.rs"
+
+[[bin]]
+name = "repo_builder"
+path = "src/bin/repo_builder.rs"
+
+[[bin]]
+name = "repo_editor"
+path = "src/bin/repo_editor/main.rs"
+
+# Debian-compatible frontends for the `pkg` package manager. All three share
+# the implementation in `src/apt_cli.rs` and pick their behaviour from argv[0].
+[[bin]]
+name = "apt"
+path = "src/bin/apt.rs"
+
+[[bin]]
+name = "apt-get"
+path = "src/bin/apt-get.rs"
+
+[[bin]]
+name = "apt-cache"
+path = "src/bin/apt-cache.rs"
+
+[lib]
+name = "cookbook"
+path = "src/lib.rs"
+doctest = false
+
+[features]
+#TODO: Actually make without tui feature works
+default = ["tui"]
+tui = ["ratatui", "ansi-to-tui", "strip-ansi-escapes"]
+
+[dependencies]
+blake3 = "1"
+globset = "0.4"
+libc = "0.2"
+ignore = "0.4"
+# The default features pull in the compressed-archive support, and with it
+# ruzstd 0.8, which has an open decompression-bomb advisory. The build
+# system only needs to read ELF headers, so the archive support is left out.
+object = { version = "0.40", default-features = false, features = ["build_core", "elf", "std"] }
+# Pure Rust archive handling for Debian .deb packages. Kept free of C bindings
+# so that the same code works on the build host and inside the guest.
+tar = "0.4"
+flate2 = "1"
+lzma-rs = "0.3"
+ruzstd = "0.9"
+bzip2-rs = "0.1"
+pkgar = { git = "https://gitlab.redox-os.org/redox-os/pkgar.git" }
+pkgar-core = { git = "https://gitlab.redox-os.org/redox-os/pkgar.git" }
+pkgar-keys = { git = "https://gitlab.redox-os.org/redox-os/pkgar.git" }
+carcinization-pkg = { package = "redox-pkg", git = "https://gitlab.redox-os.org/redox-os/pkgutils.git", default-features = false }
+carcinization_installer = { package = "redox_installer", git = "https://gitlab.redox-os.org/redox-os/installer.git", default-features = false }
+carcinizer = { package = "redoxer", git = "https://gitlab.redox-os.org/redox-os/redoxer.git", default-features = false }
+regex = "1.13"
+serde = { version = "1", features = ["derive"] }
+termion = "4"
+toml = "1"
+walkdir = "2.5"
+ansi-to-tui = { version = "8", optional = true }
+strip-ansi-escapes = { version = "0.2.1", optional = true }
+serde_json = "1"
+
+[dependencies.ratatui]
+version = "0.30"
+default-features = false
+features = ["termion"]
+optional = true

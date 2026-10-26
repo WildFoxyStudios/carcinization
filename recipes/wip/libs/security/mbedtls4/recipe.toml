@@ -1,0 +1,7 @@
+#TODO not compiled or tested
+# build instructions: https://mbed-tls.readthedocs.io/en/latest/getting_started/building/#building-with-cmake
+[source]
+tar = "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-4.0.0/mbedtls-4.0.0.tar.bz2"
+blake3 = "a408b1a5bc23ded7f421c684ce9019b77c2e3513f34599e1d3b699de05b2ea3f"
+[build]
+template = "cmake"

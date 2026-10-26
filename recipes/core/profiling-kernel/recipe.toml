@@ -1,0 +1,9 @@
+[source]
+same_as = "../kernel"
+
+[build]
+template = "custom"
+script = """
+cd "${COOKBOOK_SOURCE}"
+make install BUILD="${COOKBOOK_BUILD}" DESTDIR="${COOKBOOK_STAGE}" KERNEL_CARGO_FEATURES=profiling
+"""

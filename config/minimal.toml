@@ -1,0 +1,36 @@
+# Minimal configuration
+
+include = ["base.toml"]
+
+# General settings
+[general]
+# Filesystem size in MiB
+filesystem_size = 196
+
+# Package settings
+[packages]
+# Debian-compatible frontends for `pkg`, so `apt install` works as expected.
+apt = {}
+ca-certificates = {}
+coreutils = {}
+extrautils = {}
+ion = {}
+pkgutils = {}
+kibi = {}
+uutils-procps = {}
+
+[[files]]
+path = "/usr/lib/init.d/30_console_switch"
+data = """
+requires_weak 30_console.target
+inputd -A 2
+"""
+
+# Debian archives, used as a fallback source for `apt install`. The packages
+# built for Carcinization always take precedence, because those are linked
+# against relibc and therefore run here.
+[[files]]
+path = "/etc/apt/sources.list"
+data = """
+deb http://deb.debian.org/debian bookworm main
+"""

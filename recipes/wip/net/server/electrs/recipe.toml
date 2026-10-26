@@ -1,0 +1,13 @@
+#TODO fix rocksdb and bitcoin-core
+# build instructions: https://github.com/romanz/electrs/blob/master/doc/install.md
+[source]
+git = "https://github.com/romanz/electrs"
+shallow_clone = true
+[build]
+template = "cargo"
+dependencies = ["rocksdb"]
+[package]
+dependencies = [
+    "bitcoin-core",
+    "electrum",
+]

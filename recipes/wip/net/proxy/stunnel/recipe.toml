@@ -1,0 +1,13 @@
+#TODO conflicting types for getnameinfo
+[source]
+tar = "https://www.stunnel.org/downloads/archive/5.x/stunnel-5.79.tar.gz"
+[build]
+template = "custom"
+dependencies = ["openssl3"]
+script = """
+DYNAMIC_INIT
+COOKBOOK_CONFIGURE_FLAGS+=(
+    --with-ssl="${COOKBOOK_SYSROOT}"
+)
+cookbook_configure
+"""

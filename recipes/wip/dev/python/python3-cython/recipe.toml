@@ -1,0 +1,17 @@
+[source]
+git = "https://github.com/cython/cython"
+rev = "3.2.4"
+shallow_clone = true
+
+[build]
+template = "python"
+dev-dependencies = [
+    "host:python312",
+    "python312",
+    "python3-setuptools",
+]
+
+[package]
+dependencies = [
+    "python312"
+]

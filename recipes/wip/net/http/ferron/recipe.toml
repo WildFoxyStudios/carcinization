@@ -1,0 +1,7 @@
+#TODO update nix crate version
+[source]
+git = "https://github.com/ferronweb/ferron"
+shallow_clone = true
+[build]
+template = "cargo"
+cargopackages = ["ferron"]

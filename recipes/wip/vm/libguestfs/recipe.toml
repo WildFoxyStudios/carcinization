@@ -1,0 +1,6 @@
+#TODO determine minimum dependencies from configure log
+# build instructions: https://libguestfs.org/guestfs-building.1.html
+[source]
+tar = "https://download.libguestfs.org/1.58-stable/libguestfs-1.58.1.tar.gz"
+[build]
+template = "configure"

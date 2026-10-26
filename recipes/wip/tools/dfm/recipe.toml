@@ -1,0 +1,5 @@
+#TODO port to carcinization
+[source]
+git = "https://github.com/chasinglogic/dfm"
+[build]
+template = "cargo"

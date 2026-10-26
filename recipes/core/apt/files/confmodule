@@ -1,0 +1,79 @@
+# Stand-in for Debian's `/usr/share/debconf/confmodule`.
+#
+# Debian maintainer scripts source this file to get the `db_*` shell
+# functions. The real one loads the Perl debconf machinery, which is not
+# available on Carcinization. This provides the same shell interface, so
+# packages configure themselves with their default answers instead of
+# failing.
+#
+# The functions deliberately never prompt: a package installation must not
+# block on a question nobody is there to answer.
+
+DB_DEBCONF_TMP="${DPKG_DEBCONF_TMP:-/tmp/.debconf-default}"
+
+# db_input [priority] question [default]
+db_input() {
+    _db_default=""
+    case "$#" in
+        1) _db_default="" ;;
+        2) _db_default="" ;;
+        3) _db_default="$3" ;;
+        *) _db_default="$3" ;;
+    esac
+    printf '%s\n' "${_db_default}" > "${DB_DEBCONF_TMP}" 2>/dev/null || true
+    return 0
+}
+
+# db_go
+db_go() {
+    return 0
+}
+
+# db_get question [default]
+db_get() {
+    _db_default="$2"
+    # `read` is a shell builtin, so this keeps working even when the system
+    # being installed into has no coreutils yet.
+    if [ -s "${DB_DEBCONF_TMP}" ]; then
+        _db_value=""
+        # `read` reports failure when the file has no trailing newline, but it
+        # still fills the variable, so the status is deliberately ignored.
+        read -r _db_value < "${DB_DEBCONF_TMP}" || true
+        printf '%s' "${_db_value}"
+    else
+        printf '%s' "${_db_default}"
+    fi
+    return 0
+}
+
+# db_reset question
+db_reset() {
+    rm -f "${DB_DEBCONF_TMP}" 2>/dev/null || true
+    return 0
+}
+
+# db_subst question value
+db_subst() {
+    return 0
+}
+
+# db_change question priority
+db_change() {
+    return 0
+}
+
+# db_set question value
+db_set() {
+    printf '%s' "$2" > "${DB_DEBCONF_TMP}" 2>/dev/null || true
+    return 0
+}
+
+# db_fget question
+db_fget() {
+    return 1
+}
+
+# db_purge
+db_purge() {
+    return 0
+}

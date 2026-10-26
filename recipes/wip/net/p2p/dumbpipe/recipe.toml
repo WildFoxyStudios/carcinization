@@ -1,0 +1,6 @@
+#TODO update and fix netdev crate
+[source]
+git = "https://github.com/n0-computer/dumbpipe"
+shallow_clone = true
+[build]
+template = "cargo"

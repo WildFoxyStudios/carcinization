@@ -1,0 +1,22 @@
+# TODO needs testing
+[source]
+git = "https://github.com/tartley/colorama"
+rev = "0.4.6"
+shallow_clone = true
+
+[build]
+template = "python"
+dev-dependencies = [
+    "host:python312",
+    "python312",
+    "python3-hatchling",
+    "python3-pathspec",
+    "python3-pluggy",
+    "python3-packaging",
+    "python3-trove-classifiers",
+]
+
+[package]
+dependencies = [
+    "python312"
+]

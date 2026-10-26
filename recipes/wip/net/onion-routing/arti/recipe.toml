@@ -1,0 +1,10 @@
+#TODO fix secmem-proc crate
+[source]
+git = "https://gitlab.torproject.org/tpo/core/arti"
+shallow_clone = true
+[build]
+template = "cargo"
+cargopackages = ["arti"]
+dependencies = [
+    "openssl3",
+]

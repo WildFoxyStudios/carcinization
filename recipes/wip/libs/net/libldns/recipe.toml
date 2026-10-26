@@ -1,0 +1,21 @@
+[source]
+git = "https://github.com/NLnetLabs/ldns"
+shallow_clone = true
+rev = "1.9.2"
+script = """
+autotools_recursive_regenerate
+cp drill/install-sh .
+"""
+
+[build]
+template = "custom"
+dependencies = [ 
+    "openssl3"
+]
+script = """
+DYNAMIC_INIT
+COOKBOOK_CONFIGURE_FLAGS+=(
+    --with-ssl="$COOKBOOK_SYSROOT"
+)
+cookbook_configure
+"""

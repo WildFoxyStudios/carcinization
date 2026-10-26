@@ -1,0 +1,6 @@
+#TODO compile and test
+[source]
+git = "https://github.com/Yazelix/anima"
+shallow_clone = true
+[build]
+template = "cargo"

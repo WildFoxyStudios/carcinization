@@ -1,0 +1,18 @@
+# Configuration for the Carcinizer GUI image
+
+include = ["carcinizer.toml"]
+
+# Package settings
+[packages]
+orbdata = {}
+orbital = {}
+
+# Override to run inside of orbital
+[[files]]
+path = "/usr/lib/init.d/30_carcinizer"
+data = """
+requires_weak 10_net.target
+echo
+echo "## running carcinizer in orbital ##"
+nowait VT=3 orbital redoxerd
+"""

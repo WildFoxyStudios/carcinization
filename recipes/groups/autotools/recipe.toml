@@ -1,0 +1,9 @@
+[package]
+dependencies = [
+    "autoconf",
+    "automake",
+    "libtool",
+    "gettext",
+    "gnu-make",
+]
+description = "Components for GNU Autoconf"

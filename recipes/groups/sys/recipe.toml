@@ -1,0 +1,9 @@
+[package]
+dependencies = [
+    "base",
+    "bootloader",
+    "coreutils",
+    "kernel",
+    "relibc",
+]
+description = "Minimal components for operating system"

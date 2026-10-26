@@ -1,0 +1,18 @@
+# TODO successfully compiles but needs testing
+[source]
+git = "https://github.com/pypa/flit"
+rev = "3.12.0"
+shallow_clone = true
+
+[build]
+template = "python"
+pyprojectpath = "flit_core"
+dev-dependencies = [
+  "host:python312",
+  "python312",
+]
+
+[package]
+dependencies = [
+  "python312"
+]

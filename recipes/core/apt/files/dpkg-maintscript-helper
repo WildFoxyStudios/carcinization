@@ -1,0 +1,89 @@
+#!/bin/sh
+# Minimal replacement for dpkg's `dpkg-maintscript-helper`.
+#
+# Debian maintainer scripts call this utility to hook into the package
+# lifecycle. Carcinization does not ship dpkg, so without a stand-in many
+# perfectly ordinary `.deb` packages would fail to install over a missing
+# command. This implements the actions that packages actually use.
+#
+# Unknown actions are reported but do not abort the installation: this is a
+# best-effort stand-in, not a reimplementation of dpkg.
+
+DPKG_MAINTSCRIPT_PACKAGE="${DPKG_MAINTSCRIPT_PACKAGE:-}"
+DPKG_MAINTSCRIPT_ARCH="${DPKG_MAINTSCRIPT_ARCH:-}"
+root="${DPKG_ROOT:-}"
+admindir="${DPKG_ADMINDIR:-${root}/var/lib/dpkg}"
+updates="${admindir}/updates"
+info="${admindir}/info"
+
+action="$1"
+
+if [ -z "${DPKG_MAINTSCRIPT_PACKAGE}" ]; then
+    echo "dpkg-maintscript-helper: environment variable DPKG_MAINTSCRIPT_NAME is required" >&2
+    exit 1
+fi
+
+# Resolve a path inside the installation root.
+inroot() {
+    if [ -n "${root}" ]; then
+        echo "${root}$1"
+    else
+        echo "$1"
+    fi
+}
+
+old_version="$2"
+new_version="$3"
+
+case "${action}" in
+    abort-upgrade)
+        # Record that the upgrade must be rolled back if it fails.
+        mkdir -p "${updates}"
+        echo "abort-upgrade ${new_version} ${old_version}" \
+            > "${updates}/${DPKG_MAINTSCRIPT_PACKAGE}"
+        ;;
+    abort-remove)
+        rm -f "${updates}/${DPKG_MAINTSCRIPT_PACKAGE}"
+        ;;
+    upgrade)
+        hook="${info}/${DPKG_MAINTSCRIPT_PACKAGE}.upgrade"
+        if [ -x "${hook}" ]; then
+            "${hook}" "${old_version}" "${new_version}"
+        fi
+        ;;
+    remove)
+        hook="${info}/${DPKG_MAINTSCRIPT_PACKAGE}.remove"
+        if [ -x "${hook}" ]; then
+            "${hook}" "${old_version}" "${new_version}"
+        fi
+        ;;
+    purge)
+        hook="${info}/${DPKG_MAINTSCRIPT_PACKAGE}.purge"
+        if [ -x "${hook}" ]; then
+            "${hook}" "${old_version}" "${new_version}"
+        fi
+        rm -f "${updates}/${DPKG_MAINTSCRIPT_PACKAGE}"
+        ;;
+    dir_to_symlink)
+        # dh_installdeb replaces a directory that is a copy of another one
+        # with a symlink to it.
+        path="$2"
+        target="$3"
+        version="$4"
+        full="$(inroot "${path}")"
+        parent="$(dirname "${full}")"
+        if [ -d "${full}" ] && [ ! -L "${full}" ]; then
+            mkdir -p "${parent}"
+            rm -rf "${full}"
+            ln -s "${target}" "${full}"
+            mkdir -p "${updates}"
+            echo "dir_to_symlink ${version}" \
+                > "${updates}/${DPKG_MAINTSCRIPT_PACKAGE}.dir_to_symlink"
+        fi
+        ;;
+    *)
+        echo "dpkg-maintscript-helper: unsupported action '${action}', ignoring" >&2
+        ;;
+esac
+
+exit 0

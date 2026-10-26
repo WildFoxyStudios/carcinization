@@ -1,0 +1,7 @@
+#TODO update and fix iroh-quinn-udp crate
+[source]
+git = "https://github.com/teamtype/teamtype"
+shallow_clone = true
+[build]
+template = "cargo"
+cargopackages = ["teamtype"]

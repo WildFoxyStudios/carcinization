@@ -1,0 +1,6 @@
+#TODO update nix crate
+[source]
+git = "https://github.com/abdoufermat5/bayesian-ssh"
+shallow_clone = true
+[build]
+template = "cargo"

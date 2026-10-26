@@ -1,0 +1,41 @@
+[source]
+# This repository also holds the `apt`/`apt-get`/`apt-cache` frontends, which
+# are built by the `recipes/core/apt` recipe through `same_as`. When you host
+# this project somewhere else, point this URL at your own copy: it is the
+# single place that decides where the build system comes from.
+git = "https://gitlab.redox-os.org/redox-os/redox.git"
+shallow_clone = true
+[build]
+template = "custom"
+script = """
+DYNAMIC_INIT
+cookbook_cargo
+
+mkdir -pv "${COOKBOOK_STAGE}/home/user/cookbook"
+cp -rv "${COOKBOOK_SOURCE}"/* "${COOKBOOK_STAGE}/home/user/cookbook"
+"""
+
+[package]
+# Dependencies below does not include Rust / GCC
+#   because it will be downloaded as prefix binary.
+dependencies = [
+    "autoconf",
+    "automake",
+    "git",
+    "cbindgen",
+    "gnu-binutils",
+    "gnu-grep",
+    "gnu-make",
+    "installer",
+    "nasm",
+    "pkg-config",
+    "pkgar",
+    "python312",
+    "sed",
+    "wget",
+# toolchains are dynamically linked, so this is needed
+    "libgmp",
+    "libmpfr",
+    "mpc",
+    "curl",
+]

@@ -1,0 +1,49 @@
+#!/bin/sh
+# Minimal stand-in for Debian's `debconf` configuration front-end.
+#
+# Many Debian packages configure themselves through debconf questions. The
+# system itself is not available on Carcinization, so this provides the
+# commands packages actually call, answering with the default value and
+# otherwise doing nothing. The package therefore installs with its default
+# configuration instead of failing outright.
+#
+# The same file is installed under every name it is known by, and dispatches
+# on how it was invoked.
+
+name="$(basename "$0")"
+
+case "${name}" in
+    debconf)
+        # `debconf [package] [question] [value]` just sets a value.
+        exit 0
+        ;;
+    db_input|db_inputmedium|db_inputhigh|db_inputlow|db_inputcritical)
+        # `db_input [priority] [question] [default]`
+        # Remember the default so that db_get can answer with it.
+        default="$3"
+        if [ -z "${default}" ]; then
+            default="$2"
+        fi
+        printf '%s' "${default}" > "${DPKG_DEBCONF_TMP:-/tmp/.debconf-default}"
+        exit 0
+        ;;
+    db_get)
+        # `db_get question [default]`
+        default="$2"
+        tmp="${DPKG_DEBCONF_TMP:-/tmp/.debconf-default}"
+        if [ -s "${tmp}" ]; then
+            value=""
+            read -r value < "${tmp}" || true
+            printf '%s' "${value}"
+        else
+            printf '%s' "${default}"
+        fi
+        exit 0
+        ;;
+    db_go|db_reset|db_subst|db_change|db_set|db_fget|db_purge|db_unregister|db_ls|db_register)
+        exit 0
+        ;;
+    *)
+        exit 0
+        ;;
+esac

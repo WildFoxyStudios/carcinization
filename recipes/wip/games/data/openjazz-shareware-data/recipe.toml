@@ -1,0 +1,21 @@
+# The RAR archive is unpacked with bsdtar, which comes from libarchive and
+# reads RAR without the redistribution restrictions of RARLAB's unrar.
+
+[build]
+template = "custom"
+script = """
+ASSETS_DIR="${COOKBOOK_STAGE}/usr/share/games/openjazz/"
+APP_DIR="${COOKBOOK_STAGE}/usr/share/ui/apps"
+
+curl -vJL https://archive.org/download/jazz-jackrabbit/Jazz%20Jackrabbit.rar -o jazzdemo.rar
+sha256sum -c "${COOKBOOK_RECIPE}/jazzdemo.rar.sha"
+
+bsdtar -x -f jazzdemo.rar
+mkdir -p "${ASSETS_DIR}" "${APP_DIR}"
+unzip -uL Jazz/JAZZ.ZIP -d "${ASSETS_DIR}"
+
+cp -v manifest "${APP_DIR}/openjazz"
+"""
+
+[package]
+dependencies = [ "openjazz" ]

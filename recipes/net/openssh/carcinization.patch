@@ -1,0 +1,104 @@
+diff -ruwN source/defines.h source-new/defines.h
+--- source/defines.h	2026-08-11 09:22:17.000000000 +0700
++++ source-new/defines.h	2026-09-11 07:06:03.149580789 +0700
+@@ -48,8 +48,9 @@
+  * netinet/in.h.
+  */
+ 
+-#ifdef HAVE_CYGWIN
++#if defined(HAVE_CYGWIN) || defined(__redox__)
+ #define IPPORT_RESERVED 0
++#define IN_LOOPBACKNET 127
+ #endif
+ 
+ /*
+@@ -465,12 +466,21 @@
+ 
+ #ifdef MAIL_DIRECTORY
+ # define _PATH_MAILDIR MAIL_DIRECTORY
++#else
++# define _PATH_MAILDIR "/var/mail"
+ #endif
+ 
+ #ifndef _PATH_NOLOGIN
+ # define _PATH_NOLOGIN "/etc/nologin"
+ #endif
+ 
++#ifndef ST_RDONLY
++#define ST_RDONLY	1
++#endif
++#ifndef ST_NOSUID
++#define ST_NOSUID	2
++#endif
++
+ /* Define this to be the path of the xauth program. */
+ #ifdef XAUTH_PATH
+ #define _PATH_XAUTH XAUTH_PATH
+diff -ruwN source/hostfile.c source-new/hostfile.c
+--- source/hostfile.c	2026-08-11 09:22:17.000000000 +0700
++++ source-new/hostfile.c	2026-09-11 07:01:03.333834076 +0700
+@@ -44,7 +44,9 @@
+ #include <netinet/in.h>
+ 
+ #include <errno.h>
++#ifndef __redox__
+ #include <resolv.h>
++#endif
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff -ruwN source/openbsd-compat/getrrsetbyname.h source-new/openbsd-compat/getrrsetbyname.h
+--- source/openbsd-compat/getrrsetbyname.h	2026-08-11 09:22:17.000000000 +0700
++++ source-new/openbsd-compat/getrrsetbyname.h	2026-09-11 05:45:17.107967449 +0700
+@@ -54,9 +54,11 @@
+ 
+ #include <sys/types.h>
+ #include <netinet/in.h>
++#ifndef __redox__
+ #include <arpa/nameser.h>
+-#include <netdb.h>
+ #include <resolv.h>
++#endif
++#include <netdb.h>
+ 
+ #ifndef HFIXEDSZ
+ #define HFIXEDSZ 12
+diff -ruwN source/regress/netcat.c source-new/regress/netcat.c
+--- source/regress/netcat.c	2026-08-11 09:22:17.000000000 +0700
++++ source-new/regress/netcat.c	2026-09-11 07:01:28.245263830 +0700
+@@ -1380,7 +1380,9 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <unistd.h>
++#ifndef __redox__
+ #include <resolv.h>
++#endif
+ 
+ #define SOCKS_PORT	"1080"
+ #define HTTP_PROXY_PORT	"3128"
+diff -ruwN source/sshbuf-misc.c source-new/sshbuf-misc.c
+--- source/sshbuf-misc.c	2026-08-11 09:22:17.000000000 +0700
++++ source-new/sshbuf-misc.c	2026-09-11 07:01:51.946601518 +0700
+@@ -26,7 +26,9 @@
+ #include <stdio.h>
+ #include <limits.h>
+ #include <string.h>
++#ifndef __redox__
+ #include <resolv.h>
++#endif
+ #include <ctype.h>
+ #include <unistd.h>
+ 
+diff -ruwN source/sshkey.c source-new/sshkey.c
+--- source/sshkey.c	2026-08-11 09:22:17.000000000 +0700
++++ source-new/sshkey.c	2026-09-11 07:00:41.360425523 +0700
+@@ -45,7 +45,9 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#ifndef __redox__
+ #include <resolv.h>
++#endif
+ #include <time.h>
+ #include <util.h>
+ 
