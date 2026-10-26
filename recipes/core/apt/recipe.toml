@@ -2,51 +2,27 @@
 #
 # `apt`, `apt-get` and `apt-cache` are thin translators that drive the `pkg`
 # binary, so that the familiar Debian command line works on Carcinization OS
-# without duplicating any of the package management logic. They also install
-# `.deb` packages, using a dpkg-compatible database of their own.
+# without duplicating any of the package management logic.
 #
 # The implementation lives in the build system repository itself, next to the
-# `pkg` frontend code, so this recipe reuses the cookbook source tree rather
-# than cloning the repository a second time.
+# `pkg` frontend code, so this recipe builds the three binaries straight from
+# the project sources.
 
 [source]
-same_as = "../../other/cookbook"
+git = "https://github.com/WildFoxyStudios/carcinization.git"
+branch = "main"
+shallow_clone = true
 
 [build]
-template = "custom"
-script = """
-DYNAMIC_INIT
-COOKBOOK_CARGO_FLAGS=(
-    --locked
-    --bin apt
-    --bin apt-get
-    --bin apt-cache
-)
-cookbook_cargo
-
-# Debian maintainer scripts call this utility, and Carcinization does not
-# ship dpkg, so a stand-in is needed for ordinary `.deb` packages to install.
-mkdir -pv "${COOKBOOK_STAGE}/usr/bin"
-cp -v "${COOKBOOK_RECIPE}/files/dpkg-maintscript-helper" \
-    "${COOKBOOK_STAGE}/usr/bin/dpkg-maintscript-helper"
-chmod 755 "${COOKBOOK_STAGE}/usr/bin/dpkg-maintscript-helper"
-
-# The same for debconf, which packages use to ask configuration questions.
-for command in debconf db_input db_inputmedium db_inputhigh db_inputlow \
-              db_inputcritical db_get db_go db_reset db_subst db_change \
-              db_set db_fget db_purge db_unregister db_ls db_register
-do
-    cp -v "${COOKBOOK_RECIPE}/files/debconf-stub" \
-        "${COOKBOOK_STAGE}/usr/bin/${command}"
-    chmod 755 "${COOKBOOK_STAGE}/usr/bin/${command}"
-done
-
-# Maintainer scripts source this file to get the db_* shell functions.
-mkdir -pv "${COOKBOOK_STAGE}/usr/share/debconf"
-cp -v "${COOKBOOK_RECIPE}/files/confmodule" \
-    "${COOKBOOK_STAGE}/usr/share/debconf/confmodule"
-chmod 644 "${COOKBOOK_STAGE}/usr/share/debconf/confmodule"
-"""
+template = "cargo"
+cargoflags = [
+    "--bin",
+    "apt",
+    "--bin",
+    "apt-get",
+    "--bin",
+    "apt-cache",
+]
 
 [package]
 # The frontends drive the `pkg` binary, so it has to be present.
