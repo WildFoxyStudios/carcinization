@@ -308,13 +308,91 @@ pub fn decompress(name: &str, data: Vec<u8>) -> Result<Box<dyn Read>> {
 }
 
 /// Extract a tar stream into `dest`.
+///
+/// The `tar` crate sets the metadata of the files it extracts with calls that
+/// work on an open file descriptor. Redox only implements the variants that
+/// take a path, so the extraction is done here: the contents are written and
+/// the permissions are set on the path, leaving out the metadata that the
+/// filesystem does not support.
 fn extract_tar<R: Read>(reader: R, dest: &Path) -> Result<()> {
     let mut archive = tar::Archive::new(reader);
-    // `unpack_in` refuses to escape `dest`, which is what we want.
-    archive
-        .unpack(dest)
-        .map_err(|e| DebError::Ar(format!("unpacking tar: {}", e)))?;
+    // The modification times are set with an operation on a file descriptor
+    // that Redox does not implement.
+    archive.set_preserve_mtime(false);
+
+    let entries = archive
+        .entries()
+        .map_err(|e| DebError::Ar(format!("reading the archive: {e}")))?;
+    for entry in entries {
+        let mut entry = entry.map_err(|e| DebError::Ar(format!("reading the archive: {e}")))?;
+        let path = entry
+            .path()
+            .map_err(|e| DebError::Ar(format!("invalid path in the archive: {e}")))?
+            .into_owned();
+        let target = join_within(dest, &path)?;
+        let kind = entry.header().entry_type();
+
+        if kind.is_dir() {
+            fs::create_dir_all(&target)?;
+        } else if kind.is_symlink() {
+            let link = entry
+                .link_name()
+                .map_err(|e| DebError::Ar(format!("invalid link in the archive: {e}")))?
+                .ok_or_else(|| DebError::Ar("symlink without a target".to_string()))?;
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            let _ = fs::remove_file(&target);
+            std::os::unix::fs::symlink(&link, &target)?;
+        } else if kind.is_hard_link() {
+            let link = entry
+                .link_name()
+                .map_err(|e| DebError::Ar(format!("invalid link in the archive: {e}")))?
+                .ok_or_else(|| DebError::Ar("hard link without a target".to_string()))?;
+            let source = join_within(dest, &link)?;
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            let _ = fs::remove_file(&target);
+            fs::hard_link(source, &target)?;
+        } else if kind.is_file() {
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            let mut file = fs::File::create(&target)?;
+            io::copy(&mut entry, &mut file)?;
+            if let Ok(mode) = entry.header().mode() {
+                set_mode(&target, mode);
+            }
+        }
+    }
     Ok(())
+}
+
+/// Set the permissions of a path, ignoring the filesystems that do not
+/// support it.
+fn set_mode(path: &Path, mode: u32) {
+    use std::os::unix::fs::PermissionsExt;
+    let _ = fs::set_permissions(path, fs::Permissions::from_mode(mode & 0o7777));
+}
+
+/// Join a path from an archive to the destination, refusing the entries that
+/// would escape it.
+fn join_within(dest: &Path, path: &Path) -> Result<PathBuf> {
+    let mut target = dest.to_path_buf();
+    for component in path.components() {
+        match component {
+            std::path::Component::Normal(part) => target.push(part),
+            std::path::Component::CurDir => {}
+            _ => {
+                return Err(DebError::Ar(format!(
+                    "the archive entry {} escapes the destination",
+                    path.display()
+                )));
+            }
+        }
+    }
+    Ok(target)
 }
 
 // ---------------------------------------------------------------------------
@@ -481,6 +559,77 @@ mod tests {
     fn ar_reports_missing_magic() {
         let err = ArArchive::new(io::Cursor::new(vec![0u8; 4])).unwrap_err();
         assert!(matches!(err, DebError::Io(_) | DebError::Ar(_)));
+    }
+
+    #[test]
+    fn tar_entries_are_extracted_with_their_mode() {
+        let dir = std::env::temp_dir().join("carcinization-deb-extract-test");
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+
+        let mut builder = tar::Builder::new(Vec::new());
+        let mut header = tar::Header::new_gnu();
+        header.set_size(5);
+        header.set_mode(0o755);
+        header.set_cksum();
+        builder
+            .append_data(&mut header, "usr/bin/tool", &b"hello"[..])
+            .unwrap();
+        let archive = builder.into_inner().unwrap();
+
+        extract_tar(io::Cursor::new(archive), &dir).unwrap();
+
+        let tool = dir.join("usr/bin/tool");
+        assert_eq!(fs::read(&tool).unwrap(), b"hello");
+        use std::os::unix::fs::PermissionsExt;
+        let mode = fs::metadata(&tool).unwrap().permissions().mode();
+        assert_eq!(mode & 0o777, 0o755);
+
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    /// Build a tar entry by hand, so that the paths the builder refuses to
+    /// write can be tested.
+    fn build_raw_tar_entry(name: &str, data: &[u8]) -> Vec<u8> {
+        let mut header = [0u8; 512];
+        header[..name.len()].copy_from_slice(name.as_bytes());
+        header[100..107].copy_from_slice(b"0000644");
+        header[108..115].copy_from_slice(b"0000000");
+        header[116..123].copy_from_slice(b"0000000");
+        let size = format!("{:011o}", data.len());
+        header[124..135].copy_from_slice(size.as_bytes());
+        header[136..147].copy_from_slice(b"00000000000");
+        header[156] = b'0';
+        header[257..263].copy_from_slice(b"ustar\0");
+        header[263..265].copy_from_slice(b"00");
+        for byte in header.iter_mut().skip(148).take(8) {
+            *byte = b' ';
+        }
+        let sum: u32 = header.iter().map(|byte| *byte as u32).sum();
+        let checksum = format!("{:06o}\0 ", sum);
+        header[148..156].copy_from_slice(checksum.as_bytes());
+
+        let mut out = header.to_vec();
+        out.extend_from_slice(data);
+        let padding = (512 - data.len() % 512) % 512;
+        out.extend(std::iter::repeat_n(0u8, padding));
+        out
+    }
+
+    #[test]
+    fn tar_entries_cannot_escape_the_destination() {
+        let dir = std::env::temp_dir().join("carcinization-deb-escape-test");
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+
+        let archive = build_raw_tar_entry("../escaped", b"x");
+
+        // The extraction refuses the entry, so it never reaches the file
+        // system.
+        assert!(extract_tar(io::Cursor::new(archive), &dir).is_err());
+        assert!(!dir.parent().unwrap().join("escaped").exists());
+
+        let _ = fs::remove_dir_all(&dir);
     }
 
     #[test]
