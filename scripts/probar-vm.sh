@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Arranca la VM de Carcinization OS en VirtualBox sin ventana y comprueba que
-# el sistema arranca, entra en sesión y puede instalar un paquete de Debian.
+# el sistema arranca, entra en sesión y responde.
 #
-# El puerto serie de la VM se conecta a una tubería con nombre, de modo que
-# las teclas se pueden enviar con `printf` y la salida se puede leer.
+# El arranque con BIOS no escribe nada por el puerto serie, así que la
+# consola se maneja con el teclado emulado y se lee con capturas de la
+# pantalla.
 #
 # Uso: probar-vm.sh [ruta/harddrive.img]
 set -uo pipefail
@@ -12,47 +13,58 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 IMG="${1:-$ROOT/build/x86_64/minimal/harddrive.img}"
 VBM=VBoxManage
 VM=Carcinization
-PIPE=/tmp/carcinization-vm-serial
-LOG=/tmp/carcinization-vm-serial.log
+SHOTS="${SHOTS:-/tmp/carcinization-vm}"
 
 if [ ! -f "$IMG" ]; then
     echo "No se encuentra la imagen $IMG" >&2
     exit 1
 fi
 
+mkdir -p "$SHOTS"
+
 "$ROOT/scripts/crear-vm.sh" "$IMG" || exit 1
 
-echo "== Conectando el puerto serie a $PIPE =="
-rm -f "$PIPE" "$LOG"
-$VBM modifyvm "$VM" --uart1 0x3F8 4 --uartmode1 pipe "$PIPE"
+# Envía una línea de texto al guest y la confirma con Enter.
+send() {
+    $VBM controlvm "$VM" keyboardputstring "$1" >/dev/null 2>&1
+    sleep 1
+    $VBM controlvm "$VM" keyboardputscancode 1c 9c >/dev/null 2>&1
+}
 
-# La tubería tiene que existir antes de que la VM la abra.
-mkfifo "$PIPE"
-(while true; do cat "$PIPE"; done > "$LOG" 2>/dev/null &)
+shot() {
+    $VBM controlvm "$VM" screenshotpng "$SHOTS/$1.png" >/dev/null 2>&1
+    echo "captura: $SHOTS/$1.png"
+}
 
 echo "== Arrancando la VM =="
 $VBM startvm "$VM" --type headless || exit 1
-sleep 30
+sleep 35
 
 echo "== Pasando el menú de resolución =="
-printf '\r' > "$PIPE"
+$VBM controlvm "$VM" keyboardputscancode 1c 9c >/dev/null 2>&1
 sleep 40
 
 echo "== Entrando como root =="
-printf 'root\n' > "$PIPE"
-sleep 8
-printf 'password\n' > "$PIPE"
-sleep 15
+send "root"
+sleep 3
+send "password"
+sleep 12
+shot "login"
 
-echo "== Recogiendo el estado =="
-printf 'uname -a; apt update; apt install hello; echo FIN_DE_LA_PRUEBA\n' > "$PIPE"
-sleep 120
+echo "== Comprobando el sistema =="
+send "uname -a"
+sleep 6
+send "ifconfig"
+sleep 8
+shot "sistema"
+
+echo "== Probando la red =="
+send "ping -c 2 10.0.2.2"
+sleep 15
+shot "red"
 
 echo "== Apagando =="
-printf 'poweroff\n' > "$PIPE"
+send "poweroff"
 sleep 20
 $VBM controlvm "$VM" poweroff >/dev/null 2>&1
-
-echo
-echo "== Salida del guest =="
-sed -e 's/\x1b\[[0-9;?]*[a-zA-Z]//g' "$LOG" | tail -60
+echo "Hecho. Las capturas están en $SHOTS"
