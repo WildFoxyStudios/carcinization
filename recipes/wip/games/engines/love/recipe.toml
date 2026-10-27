@@ -27,7 +27,7 @@ DYNAMIC_INIT
 export CFLAGS="${CFLAGS} -I${COOKBOOK_SYSROOT}/include -I${COOKBOOK_SYSROOT}/include/SDL2"
 export CXXFLAGS="${CXXFLAGS} -I${COOKBOOK_SYSROOT}/include -I${COOKBOOK_SYSROOT}/include/SDL2"
 
-cat > carcinization.cmake <<EOF
+cat > redox.cmake <<EOF
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR "${TARGET%%-*}")
@@ -63,7 +63,7 @@ COOKBOOK_CONFIGURE_FLAGS=(
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX="/usr"
     -DCMAKE_PREFIX_PATH="${COOKBOOK_SYSROOT}"
-    -DCMAKE_TOOLCHAIN_FILE=carcinization.cmake
+    -DCMAKE_TOOLCHAIN_FILE=redox.cmake
     -DCMAKE_VERBOSE_MAKEFILE=ON
     -DOPENGL_opengl_LIBRARY="/dev/null"
     -DOPENGL_glx_LIBRARY="/dev/null"

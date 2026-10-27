@@ -91,7 +91,7 @@ diff --color -ruwN source/Cargo.lock source-new/Cargo.lock
  checksum = "348108ab3fba42ec82ff6e9564fc4ca0247bdccdc68dd8af9764bbc79c3c8ffb"
  
  [[package]]
-+name = "libcarcinization"
++name = "libredox"
 +version = "0.1.12"
 +source = "registry+https://github.com/rust-lang/crates.io-index"
 +checksum = "3d0b95e02c851351f877147b7deea7b1afb1df71b63aa5f8270716e0c5720616"
@@ -124,7 +124,7 @@ diff --color -ruwN source/Cargo.lock source-new/Cargo.lock
 +checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
 +dependencies = [
 + "getrandom 0.2.999",
-+ "libcarcinization",
++ "libredox",
 + "thiserror 1.999.999",
 +]
  
@@ -179,7 +179,7 @@ diff --color -ruwN source/supply-chain/audits.toml source-new/supply-chain/audit
  version = "0.2.6"
  notes = "This crate uses unsafe block, but this doesn't have network and file access. I audited code."
  
-+[[audits.libcarcinization]]
++[[audits.libredox]]
 +who = "Wildan M <willnode@wellosoft.net>"
 +criteria = "safe-to-deploy"
 +version = "0.1.12"

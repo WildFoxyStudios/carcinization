@@ -220,7 +220,7 @@ diff -ruwN glib-2.87.0/glib/glib-unix.c source/glib/glib-unix.c
 +#elif defined(__redox__)
 +  char file_path[PATH_MAX] = {0};
 +
-+  if (carcinization_fpath (fd, file_path, PATH_MAX) < 0)
++  if (redox_fpath (fd, file_path, PATH_MAX) < 0)
 +    {
 +      int errsv = errno;
 +

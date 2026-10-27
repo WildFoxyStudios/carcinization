@@ -19,4 +19,4 @@ linker = "riscv64-unknown-redox-gcc"
 rustflags = []
 
 [env]
-CFLAGS_riscv64gc_unknown_carcinization="-march=rv64gc -mabi=lp64d"
+CFLAGS_riscv64gc_unknown_redox="-march=rv64gc -mabi=lp64d"

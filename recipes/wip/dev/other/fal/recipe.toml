@@ -3,4 +3,4 @@ git = "https://github.com/4lDO2/fal-rs"
 shallow_clone = true
 [build]
 template = "cargo"
-cargopackages = ["fal-frontend-carcinization"]
+cargopackages = ["fal-frontend-redox"]

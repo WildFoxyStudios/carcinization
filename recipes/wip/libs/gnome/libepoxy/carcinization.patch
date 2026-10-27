@@ -16,7 +16,7 @@ diff -ruwN source/registry/egl.xml source-new/registry/egl.xml
                  <enum name="EGL_PLATFORM_X11_SCREEN_EXT"/>
              </require>
          </extension>
-+        <extension name="EGL_EXT_platform_carcinization" supported="egl">
++        <extension name="EGL_EXT_platform_redox" supported="egl">
 +            <require>
 +                <enum name="EGL_PLATFORM_REDOX_EXT"/>
 +            </require>
@@ -28,7 +28,7 @@ diff -ruwN source/registry/egl.xml source-new/registry/egl.xml
                  <enum name="EGL_PLATFORM_X11_SCREEN_KHR"/>
              </require>
          </extension>
-+        <extension name="EGL_KHR_platform_carcinization" supported="egl">
++        <extension name="EGL_KHR_platform_redox" supported="egl">
 +            <require>
 +                <enum name="EGL_PLATFORM_REDOX_KHR"/>
 +            </require>

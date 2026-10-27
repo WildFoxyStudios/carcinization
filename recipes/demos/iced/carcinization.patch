@@ -78,7 +78,7 @@ index b309db1d6..f9553ab97 100644
 @@ -3800,14 +3786,14 @@ checksum = "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
  
  [[package]]
- name = "libcarcinization"
+ name = "libredox"
 -version = "0.1.16"
 +version = "0.1.18"
  source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -113,19 +113,19 @@ index b309db1d6..f9553ab97 100644
 +checksum = "128496b2c763a99c4f4b95c48123e4b6c78a3d944e0273c253ac5d0819dad1a5"
  dependencies = [
   "libc",
-  "libcarcinization",
+  "libredox",
 @@ -5494,6 +5480,16 @@ dependencies = [
   "font-types",
  ]
  
 +[[package]]
-+name = "carcinization_event"
++name = "redox_event"
 +version = "0.4.8"
 +source = "registry+https://github.com/rust-lang/crates.io-index"
 +checksum = "c5018d583d6d2f5499352aea8d177e9067d1eb03ab17c78169d5ba7a30001b15"
 +dependencies = [
 + "bitflags 2.11.0",
-+ "libcarcinization",
++ "libredox",
 +]
 +
  [[package]]
@@ -248,11 +248,11 @@ index b309db1d6..f9553ab97 100644
  dependencies = [
   "bitflags 2.11.0",
   "dpi",
-  "libcarcinization",
+  "libredox",
   "orbclient",
   "raw-window-handle",
 - "redox_syscall 0.7.4",
-+ "carcinization_event",
++ "redox_event",
   "smol_str",
   "tracing",
   "winit-core",

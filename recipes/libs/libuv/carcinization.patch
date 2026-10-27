@@ -18,7 +18,7 @@ diff -ruwN source/CMakeLists.txt source-new/CMakeLists.txt
 +       src/unix/proctitle.c
 +       src/unix/posix-hrtime.c
 +       src/unix/posix-poll.c
-+       src/unix/carcinization.c
++       src/unix/redox.c
 +  )
 +endif()
 +
@@ -156,9 +156,9 @@ diff -ruwN source/src/unix/proctitle.c source-new/src/unix/proctitle.c
  
  static uv_mutex_t process_title_mutex;
  static uv_once_t process_title_mutex_once = UV_ONCE_INIT;
-diff -ruwN source/src/unix/carcinization.c source-new/src/unix/carcinization.c
---- source/src/unix/carcinization.c	1970-01-01 07:00:00.000000000 +0700
-+++ source-new/src/unix/carcinization.c	2025-10-10 11:18:29.028345924 +0700
+diff -ruwN source/src/unix/redox.c source-new/src/unix/redox.c
+--- source/src/unix/redox.c	1970-01-01 07:00:00.000000000 +0700
++++ source-new/src/unix/redox.c	2025-10-10 11:18:29.028345924 +0700
 @@ -0,0 +1,104 @@
 +/* Copyright libuv contributors. All rights reserved.
 +  *

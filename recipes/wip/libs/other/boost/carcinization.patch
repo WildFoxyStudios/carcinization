@@ -19,7 +19,7 @@ diff -ruwN source/boost/config/detail/select_platform_config.hpp source-new/boos
  
 +#elif defined(__redox__)
 +// Carcinization:
-+#  define BOOST_PLATFORM_CONFIG "boost/config/platform/carcinization.hpp"
++#  define BOOST_PLATFORM_CONFIG "boost/config/platform/redox.hpp"
 +
  #elif defined(__VXWORKS__)
  // vxWorks:
@@ -28,13 +28,13 @@ diff -ruwN source/boost/config/detail/select_platform_config.hpp source-new/boos
  #  include "boost/config/platform/aix.hpp"
  #  include "boost/config/platform/amigaos.hpp"
  #  include "boost/config/platform/qnxnto.hpp"
-+#  include "boost/config/platform/carcinization.hpp"
++#  include "boost/config/platform/redox.hpp"
  #  include "boost/config/platform/vxworks.hpp"
  #  include "boost/config/platform/symbian.hpp" 
  #  include "boost/config/platform/cray.hpp" 
-diff -ruwN source/boost/config/platform/carcinization.hpp source-new/boost/config/platform/carcinization.hpp
---- source/boost/config/platform/carcinization.hpp	1970-01-01 07:00:00.000000000 +0700
-+++ source-new/boost/config/platform/carcinization.hpp	2026-03-14 02:47:45.335839093 +0700
+diff -ruwN source/boost/config/platform/redox.hpp source-new/boost/config/platform/redox.hpp
+--- source/boost/config/platform/redox.hpp	1970-01-01 07:00:00.000000000 +0700
++++ source-new/boost/config/platform/redox.hpp	2026-03-14 02:47:45.335839093 +0700
 @@ -0,0 +1,23 @@
 +//  (C) Copyright Jim Douglas 2005. 
 +//  Use, modification and distribution are subject to the 

@@ -12,6 +12,6 @@ configure = [
     "--disable-video-x11",
     "--enable-clock_gettime",
     "--enable-pthread-sem",
-    "--enable-carcinizationaudio",
+    "--enable-redoxaudio",
     "--enable-video-orbital",
 ]

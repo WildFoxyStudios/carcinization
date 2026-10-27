@@ -38,7 +38,7 @@ BOOTLOADER="recipes/core/bootloader/target/${ARCH}-unknown-redox/stage/usr/lib/b
 set -x
 sudo mkdir -pv "${ESP}/EFI" "${ESP}/loader/entries"
 sudo cp -v "${BOOTLOADER}" "${ESP}/EFI/carcinization.efi"
-sudo tee "${ESP}/loader/entries/carcinization.conf" <<EOF
+sudo tee "${ESP}/loader/entries/redox.conf" <<EOF
 title Carcinization OS
 efi /EFI/carcinization.efi
 EOF

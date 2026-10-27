@@ -45,7 +45,7 @@ echo
 echo "## preparing environment ##"
 export GROUPS=0
 export HOME=/root
-export HOST=carcinization
+export HOST=redox
 export SHELL=/bin/sh
 export UID=0
 export USER=root

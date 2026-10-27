@@ -13,7 +13,7 @@ index 0dafbd643..cff1c438f 100644
  # files as of 22 April 2024.
  lru = "0.13.0"
 -nix = { version = "0.30.1", default-features = false, features = [
-+nix = { git = "https://github.com/joshuamegnauth54/nix", branch = "carcinization-fish-no-merge", default-features = false, features = [
++nix = { git = "https://github.com/joshuamegnauth54/nix", branch = "redox-fish-no-merge", default-features = false, features = [
      "event",
      "inotify",
      "resource",

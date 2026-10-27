@@ -9,7 +9,7 @@ template = "configure"
 configureflags = [
     "--without-icu",
     "--without-readline",
-    "--with-template=carcinization",
+    "--with-template=redox",
 ]
 dependencies = [
     "zlib",

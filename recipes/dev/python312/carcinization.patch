@@ -42,13 +42,13 @@ diff -ruwN source/configure source-new/configure
          i386-gnu
 +#elif defined(__redox__)
 +# if defined(__x86_64__)
-+        x86_64-carcinization
++        x86_64-redox
 +# elif defined(__i386__)
-+        i386-carcinization
++        i386-redox
 +# elif defined(__aarch64__)
-+        aarch64-carcinization
++        aarch64-redox
 +# elif defined(__riscv)
-+        riscv64-carcinization
++        riscv64-redox
 +# else
 +#   error unknown platform triplet
 +# endif

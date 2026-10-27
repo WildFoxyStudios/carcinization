@@ -42,7 +42,7 @@ esac
 COOKBOOK_CONFIGURE_FLAGS=(
   --prefix=${COOKBOOK_STAGE}
   --dest-cpu=${NODE_CPU}
-  --dest-os=carcinization
+  --dest-os=redox
   --shared-cares
   --shared-libuv
   --shared-ngtcp2

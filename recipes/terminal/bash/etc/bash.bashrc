@@ -10,15 +10,15 @@
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-# TODO: carcinization_chroot
-if [ -z "${carcinization_chroot:-}" ] && [ -r /etc/carcinization_chroot ]; then
-    carcinization_chroot=$(cat /etc/carcinization_chroot)
+# TODO: redox_chroot
+if [ -z "${redox_chroot:-}" ] && [ -r /etc/redox_chroot ]; then
+    redox_chroot=$(cat /etc/redox_chroot)
 fi
 
 # set a fancy prompt (non-color, overwrite the one in /etc/profile)
 # but only if not SUDOing and have SUDO_PS1 set; then assume smart user.
 if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then
-  PS1='${carcinization_chroot:+($carcinization_chroot)}\u@\h:\w\$ '
+  PS1='${redox_chroot:+($redox_chroot)}\u@\h:\w\$ '
 fi
 
 # Commented out, don't overwrite xterm -T "title" -n "icontitle" by default.

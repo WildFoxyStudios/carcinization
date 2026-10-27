@@ -28,8 +28,8 @@ export TARGET_CXX="$CXX"
 export TARGET_AR="$AR"
 
 # pkg-config crate can only recognize one path to pkgconfig
-export PKG_CONFIG_PATH_x86_64_unknown_carcinization="${COOKBOOK_SYSROOT}/lib/pkgconfig"
-export PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_carcinization="${COOKBOOK_SYSROOT}/lib/pkgconfig"
+export PKG_CONFIG_PATH_x86_64_unknown_redox="${COOKBOOK_SYSROOT}/lib/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_redox="${COOKBOOK_SYSROOT}/lib/pkgconfig"
 # rsync -a -v ${COOKBOOK_SYSROOT}/usr/share/pkgconfig/*.pc ${COOKBOOK_SYSROOT}/lib/pkgconfig/
 
 #TODO: mozjs-sys and mozangle uses clang, it won't know our prefix C libraries, so here's the workaround

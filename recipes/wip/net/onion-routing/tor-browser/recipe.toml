@@ -52,7 +52,7 @@ if [[ -z "$CI" ]]; then export MACH_NO_TERMINAL_FOOTER=1; fi;
 PREFIX_INCLUDE="$COOKBOOK_HOST_SYSROOT/$TARGET/include"
 export CLANGFLAGS="-I $PREFIX_INCLUDE/c++/13.2.0 -I $PREFIX_INCLUDE/c++/13.2.0/$TARGET -I $PREFIX_INCLUDE/c++/13.2.0/backward"
 export CLANGFLAGS="$CLANGFLAGS -I $PREFIX_INCLUDE -I $COOKBOOK_SYSROOT/lib/clang/21/include -D__redox__"
-export BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_carcinization="-target x86_64-unknown-redox -nostdinc $CLANGFLAGS"
+export BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_redox="-target x86_64-unknown-redox -nostdinc $CLANGFLAGS"
 export LLVM_CONFIG_PATH="$COOKBOOK_TOOLCHAIN/bin/llvm-config"
 
 # Don't poison the stage1 compiler (host -> host)

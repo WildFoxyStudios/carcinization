@@ -85,7 +85,7 @@ diff -ruwN source/deps/v8/BUILD.bazel source-new/deps/v8/BUILD.bazel
 +        "@v8//bazel/config:is_carcinization": [
 +            "src/base/debug/stack_trace_posix.cc",
 +            "src/base/platform/platform-redox.cc",
-+            "src/base/platform/platform-carcinization.h",
++            "src/base/platform/platform-redox.h",
 +        ],
          "@v8//bazel/config:is_windows": [
              "src/base/debug/stack_trace_win.cc",
