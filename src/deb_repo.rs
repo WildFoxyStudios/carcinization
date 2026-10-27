@@ -175,40 +175,72 @@ pub fn debian_arch(arch: &str) -> Option<&'static str> {
     }
 }
 
-/// Download a URL to a file, using `wget` or `curl`.
+/// Whether a binary blob starts with the gzip magic number.
+pub fn is_gzip(data: &[u8]) -> bool {
+    data.starts_with(&[0x1f, 0x8b])
+}
+
+/// Run `curl` to fetch a URL.
+///
+/// Returns `None` when there is no `curl` binary at all, and `Some(success)`
+/// when the transfer was attempted.
+fn try_curl(url: &str, dest: &Path) -> Option<bool> {
+    let status = Command::new("curl")
+        .arg("-fsSL")
+        .arg("-o")
+        .arg(dest)
+        .arg(url)
+        .status()
+        .ok()?;
+    Some(status.success())
+}
+
+/// Run `wget` to fetch a URL.
+///
+/// Returns `None` when there is no `wget` binary at all, and `Some(success)`
+/// when the transfer was attempted.
+fn try_wget(url: &str, dest: &Path) -> Option<bool> {
+    let status = Command::new("wget")
+        .arg("-q")
+        .arg("-O")
+        .arg(dest)
+        .arg(url)
+        .status()
+        .ok()?;
+    Some(status.success())
+}
+
+/// Download a URL to a file.
+///
+/// `curl` is preferred over `wget`. The GNU `wget` port for Redox does not
+/// recognise where the HTTP response body ends: it writes the response
+/// headers into the output file and then waits forever for more data, so it
+/// never terminates. `wget` is therefore only used when `curl` is not
+/// installed at all, and a failing `curl` is never retried with `wget`, since
+/// that would hang instead of reporting the error.
 pub fn download(url: &str, dest: &Path) -> Result<()> {
     if let Some(parent) = dest.parent() {
         fs::create_dir_all(parent)?;
     }
 
-    let wget = Command::new("wget")
-        .arg("-q")
-        .arg("-O")
-        .arg(dest)
-        .arg(url)
-        .status();
-    if let Ok(status) = wget
-        && status.success()
-    {
-        return Ok(());
+    match try_curl(url, dest) {
+        Some(true) => return Ok(()),
+        Some(false) => {
+            return Err(DebError::Io(io::Error::other(format!(
+                "failed to download {}: curl exited with an error",
+                url
+            ))));
+        }
+        None => {}
     }
 
-    let curl = Command::new("curl")
-        .arg("-fsSL")
-        .arg("-o")
-        .arg(dest)
-        .arg(url)
-        .status();
-    if let Ok(status) = curl
-        && status.success()
-    {
-        return Ok(());
+    match try_wget(url, dest) {
+        Some(true) => Ok(()),
+        _ => Err(DebError::Io(io::Error::other(format!(
+            "failed to download {} with curl or wget",
+            url
+        )))),
     }
-
-    Err(DebError::Io(io::Error::other(format!(
-        "failed to download {} with wget or curl",
-        url
-    ))))
 }
 
 /// Compute the SHA256 of a file, lowercase hex.
@@ -327,22 +359,52 @@ pub fn verify_sha256(path: &Path, expected: &str) -> Result<()> {
     Ok(())
 }
 
+/// Decompress a gzip blob into text.
+///
+/// Binary data that is not valid UTF-8 is rejected instead of being replaced
+/// with lossy conversion characters, so that a truncated or corrupted download
+/// is reported as an error rather than parsed as garbage.
+pub fn gunzip_bytes(raw: &[u8]) -> Result<String> {
+    if !is_gzip(raw) {
+        return Err(DebError::Io(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "not a gzip stream: the downloaded file does not start with the gzip magic number",
+        )));
+    }
+    let mut decoder = flate2::read::GzDecoder::new(raw);
+    let mut out = String::new();
+    use std::io::Read;
+    decoder.read_to_string(&mut out)?;
+    Ok(out)
+}
+
+/// Fetch the compressed `Packages` index of a source into `dest`.
+///
+/// The index is stored exactly as it was downloaded, the same way Debian
+/// keeps it, so that refreshing it does not mean decompressing and
+/// recompressing tens of megabytes.
+pub fn fetch_index_gz(source: &Source, dest: &Path) -> Result<()> {
+    let url = source.index_url();
+    download(&url, dest)?;
+
+    let raw = fs::read(dest)?;
+    if !is_gzip(&raw) {
+        return Err(DebError::Io(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!(
+                "{} did not return a gzip stream; the server may have answered with an error page",
+                url
+            ),
+        )));
+    }
+    Ok(())
+}
+
 /// Fetch the `Packages` index of a source and return its text.
 pub fn fetch_index_text(source: &Source, work_dir: &Path) -> Result<String> {
-    let url = source.index_url();
     let path = work_dir.join("Packages.gz");
-    download(&url, &path)?;
-
-    let raw = fs::read(&path)?;
-    if raw.starts_with(&[0x1f, 0x8b]) {
-        let mut decoder = flate2::read::GzDecoder::new(raw.as_slice());
-        let mut out = String::new();
-        use std::io::Read;
-        decoder.read_to_string(&mut out)?;
-        Ok(out)
-    } else {
-        Ok(String::from_utf8_lossy(&raw).into_owned())
-    }
+    fetch_index_gz(source, &path)?;
+    gunzip_bytes(&fs::read(&path)?)
 }
 
 /// Fetch and parse the `Packages` index of a source.
@@ -368,14 +430,18 @@ pub fn write_gzip(path: &Path, text: &str) -> Result<()> {
 /// Read a file that may or may not be gzip compressed.
 pub fn read_maybe_gzip(path: &Path) -> Result<String> {
     let raw = fs::read(path)?;
-    if raw.starts_with(&[0x1f, 0x8b]) {
-        let mut decoder = flate2::read::GzDecoder::new(raw.as_slice());
-        let mut out = String::new();
-        use std::io::Read;
-        decoder.read_to_string(&mut out)?;
-        Ok(out)
+    if is_gzip(&raw) {
+        gunzip_bytes(&raw)
     } else {
-        Ok(String::from_utf8_lossy(&raw).into_owned())
+        String::from_utf8(raw).map_err(|err| {
+            DebError::Io(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!(
+                    "{} is neither a gzip stream nor valid text: {err}",
+                    path.display()
+                ),
+            ))
+        })
     }
 }
 
@@ -481,5 +547,57 @@ SHA256: abc
             sha256_bytes(b"hello world"),
             "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
         );
+    }
+
+    #[test]
+    fn gzip_streams_are_recognised() {
+        assert!(is_gzip(&[0x1f, 0x8b, 0x08, 0x00]));
+        assert!(!is_gzip(b"Package: hello\n"));
+        assert!(!is_gzip(b""));
+    }
+
+    #[test]
+    fn gunzip_decompresses_a_stream() {
+        use flate2::write::GzEncoder;
+        use std::io::Write;
+
+        let mut encoder = GzEncoder::new(Vec::new(), flate2::Compression::fast());
+        encoder.write_all(b"Package: hello\n").unwrap();
+        let compressed = encoder.finish().unwrap();
+
+        assert_eq!(
+            gunzip_bytes(&compressed).unwrap(),
+            "Package: hello\n".to_string()
+        );
+    }
+
+    /// A download that came back with the HTTP response headers in front of
+    /// the body used to be decoded as if it were text, which turned a corrupt
+    /// transfer into a silently broken package index.
+    #[test]
+    fn gunzip_rejects_data_that_is_not_a_gzip_stream() {
+        let headers = b"ish, 1.1 varnish\r\naccept-ranges: bytes\r\nage: 22\r\n\r\n";
+        let error = gunzip_bytes(headers).unwrap_err();
+        assert!(
+            error.to_string().contains("not a gzip stream"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn read_maybe_gzip_rejects_binary_files() {
+        let dir = std::env::temp_dir().join("carcinization-deb-repo-test");
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("binary.bin");
+        fs::write(&path, [0x00u8, 0xff, 0xfe, 0x01]).unwrap();
+
+        let error = read_maybe_gzip(&path).unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("neither a gzip stream nor valid text"),
+            "unexpected error: {error}"
+        );
+        fs::remove_file(&path).unwrap();
     }
 }

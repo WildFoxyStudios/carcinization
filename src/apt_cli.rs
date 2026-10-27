@@ -430,11 +430,9 @@ fn packages_index(options: &Options) -> Option<(PackagesIndex, Vec<Source>)> {
         let text = if cache.is_file() {
             deb_repo::read_maybe_gzip(&cache).ok()?
         } else {
-            let work = options.root.join("var/cache/apt");
-            std::fs::create_dir_all(&work).ok()?;
-            let text = deb_repo::fetch_index_text(source, &work).ok()?;
-            let _ = deb_repo::write_gzip(&cache, &text);
-            text
+            // The index is missing, fetch it and keep it compressed on disk.
+            deb_repo::fetch_index_gz(source, &cache).ok()?;
+            deb_repo::read_maybe_gzip(&cache).ok()?
         };
         let parsed = PackagesIndex::parse(&text).ok()?;
         index.merge(parsed);
@@ -609,11 +607,11 @@ fn update_indexes(options: &Options) -> Result<ExitCode, String> {
     }
     for source in &sources {
         println!("Get:1 {}", source.index_url());
-        let work = options.root.join("var/cache/apt");
-        std::fs::create_dir_all(&work).map_err(|e| format!("apt: {}", e))?;
-        let text = deb_repo::fetch_index_text(source, &work).map_err(|e| format!("apt: {}", e))?;
         let cache = index_cache_path(options, source);
-        deb_repo::write_gzip(&cache, &text).map_err(|e| format!("apt: {}", e))?;
+        // The index is stored as it was downloaded, so that refreshing it does
+        // not mean decompressing and recompressing tens of megabytes.
+        deb_repo::fetch_index_gz(source, &cache).map_err(|e| format!("apt: {e}"))?;
+        println!("Reading package lists... Done");
     }
     Ok(ExitCode::SUCCESS)
 }
