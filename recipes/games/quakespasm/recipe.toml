@@ -28,7 +28,7 @@ COOKBOOK_CONFIGURE_FLAGS=""
 
 # Ensure the build system is aware of Carcinization
 # The build system uses sdl-config for Unix, but SDL recommends using pkg-config
-export HOST_OS="carcinization"
+export HOST_OS="redox"
 export PKG_CONFIG="${TARGET}-pkg-config"
 
 # Config options for the Makefile. Set as necessary (see Makefile).

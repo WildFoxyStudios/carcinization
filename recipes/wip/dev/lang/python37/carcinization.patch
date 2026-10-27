@@ -6,7 +6,7 @@ diff -ruwN source/configure source-new/configure
  		ac_sys_system=Cygwin
  		;;
 +	*-*-redox*)
-+		ac_sys_system=Carcinization
++		ac_sys_system=Redox
 +		;;
  	*)
  		# for now, limit cross builds to known configurations

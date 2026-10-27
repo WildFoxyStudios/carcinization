@@ -20,7 +20,7 @@ index 92c63f5..1eff792 100644
  
  	void Link(void) {
 -#ifdef OPENAL_SOFT
-+// carcinization: weak link errors
++// redox: weak link errors
 +#ifndef OPENAL_SOFT
  		SPLog("Using OpenAL Soft - direct linking, initializing function pointers.");
  		// Directly assign function pointers to OpenAL Soft functions

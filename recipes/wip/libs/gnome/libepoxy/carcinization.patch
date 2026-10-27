@@ -40,14 +40,14 @@ diff -ruwN source/registry/egl.xml source-new/registry/egl.xml
                  <enum name="EGL_TRIPLE_BUFFER_NV"/>
              </require>
          </extension>
-+        <extension name="EGL_CARCINIZATION_image_native_buffer" supported="egl">
++        <extension name="EGL_REDOX_image_native_buffer" supported="egl">
 +            <require>
-+                <enum name="EGL_NATIVE_BUFFER_CARCINIZATION"/>
++                <enum name="EGL_NATIVE_BUFFER_REDOX"/>
 +            </require>
 +        </extension>
-+        <extension name="EGL_CARCINIZATION_platform_screen" supported="egl">
++        <extension name="EGL_REDOX_platform_screen" supported="egl">
 +            <require>
-+                <enum name="EGL_PLATFORM_SCREEN_CARCINIZATION"/>
++                <enum name="EGL_PLATFORM_SCREEN_REDOX"/>
 +            </require>
 +        </extension>
          <extension name="EGL_TIZEN_image_native_buffer" supported="egl">

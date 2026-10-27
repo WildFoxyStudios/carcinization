@@ -41,7 +41,7 @@ diff -ruwN source-old/xf86drm.c source/xf86drm.c
      bool result = false;
  
 +#if defined(__redox__)
-+    fprintf(stderr, "open_memstream not available on Carcinization\n");
++    fprintf(stderr, "open_memstream not available on Redox\n");
 +    return NULL;
 +#else
      fp = open_memstream(&modifier_name, &size);
@@ -56,7 +56,7 @@ diff -ruwN source-old/xf86drm.c source/xf86drm.c
      size_t size = 0;
  
 +#if defined(__redox__)
-+    fprintf(stderr, "open_memstream not available on Carcinization\n");
++    fprintf(stderr, "open_memstream not available on Redox\n");
 +    return NULL;
 +#else
      fp = open_memstream(&mod_amd, &size);
@@ -97,7 +97,7 @@ diff -ruwN source-old/xf86drm.c source/xf86drm.c
      maj = major(sbuf.st_rdev);
      min = minor(sbuf.st_rdev);
  
-+    // Doesn't work on Carcinization as /dev/dri/cardN is a symlink
++    // Doesn't work on Redox as /dev/dri/cardN is a symlink
 +#ifndef __redox__
      if (!drmNodeIsDRM(maj, min) || !S_ISCHR(sbuf.st_mode))
          return -1;

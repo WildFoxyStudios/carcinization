@@ -6,7 +6,7 @@ diff -ru source-new/config.sub source/config.sub
  	# Each alternative MUST END IN A *, to match a version number.
  	# -sysv* is not here because it comes later, after sysvr4.
 -	-gnu* | -bsd* | -mach* | -minix* | -genix* | -ultrix* | -irix* \
-+	-gnu* | -bsd* | -carcinization* | -mach* | -minix* | -genix* | -ultrix* | -irix* \
++	-gnu* | -bsd* | -redox* | -mach* | -minix* | -genix* | -ultrix* | -irix* \
  	      | -*vms* | -sco* | -esix* | -isc* | -aix* | -cnk* | -sunos | -sunos[34]*\
  	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -auroraux* | -solaris* \
  	      | -sym* | -kopensolaris* | -plan9* \

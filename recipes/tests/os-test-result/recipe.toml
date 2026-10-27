@@ -20,7 +20,7 @@ rsync -a "${COOKBOOK_SOURCE}/" ./
 os=$(echo "${TARGET}" | cut -d - -f3)
 case "$os" in
     linux)  OS=Linux;;
-    carcinization)  OS=Redox;;
+    redox)  OS=Redox;;
 esac
 
 # allows linking to relibc instead of prefix/host libc

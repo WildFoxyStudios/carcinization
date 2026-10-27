@@ -21,7 +21,7 @@ export LDFLAGS="$LDFLAGS -lSDL2 -lorbital -lOSMesa -lstdc++"
 ARCH="${TARGET%%-*}"
 COOKBOOK_CONFIGURE_FLAGS=(
     --enable-cross-compile
-    --target-os=carcinization
+    --target-os=redox
     --arch="${ARCH}"
     --cross_prefix="${TARGET}-"
     --prefix=/usr

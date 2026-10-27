@@ -6,7 +6,7 @@ diff -ruwN source/configure source-new/configure
  	    ac_sys_system=VxWorks
  	    ;;
 +	*-*-redox*)
-+		ac_sys_system=Carcinization
++		ac_sys_system=Redox
 +		;;
  	*)
  		# for now, limit cross builds to known configurations
@@ -33,7 +33,7 @@ diff -ruwN source/configure source-new/configure
  	  fi
            ;;
 -    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*)
-+    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*|Carcinization*)
++    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*|Redox*)
  	  LDLIBRARY='libpython$(LDVERSION).so'
  	  BLDLIBRARY='-L. -lpython$(LDVERSION)'
  	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
@@ -42,7 +42,7 @@ diff -ruwN source/configure source-new/configure
  		fi
  		;;
 -	Linux*|GNU*|QNX*|VxWorks*)
-+	Linux*|GNU*|QNX*|VxWorks*|Carcinization*)
++	Linux*|GNU*|QNX*|VxWorks*|Redox*)
  		LDSHARED='$(CC) -shared'
  		LDCXXSHARED='$(CXX) -shared';;
  	FreeBSD*)
@@ -51,7 +51,7 @@ diff -ruwN source/configure source-new/configure
  		 fi;;
  	Linux-android*) ;;
 -	Linux*|GNU*) CCSHARED="-fPIC";;
-+	Linux*|GNU*|Carcinization*) CCSHARED="-fPIC";;
++	Linux*|GNU*|Redox*) CCSHARED="-fPIC";;
  	FreeBSD*|NetBSD*|OpenBSD*|DragonFly*) CCSHARED="-fPIC";;
  	OpenUNIX*|UnixWare*)
  		if test "$GCC" = "yes"
@@ -60,7 +60,7 @@ diff -ruwN source/configure source-new/configure
  #	    LINKFORSHARED="-Wl,-E -Wl,+s -Wl,+b\$(BINLIBDEST)/lib-dynload";;
  	Linux-android*) LINKFORSHARED="-pie -Xlinker -export-dynamic";;
 -	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
-+	Linux*|GNU*|Carcinization*) LINKFORSHARED="-Xlinker -export-dynamic";;
++	Linux*|GNU*|Redox*) LINKFORSHARED="-Xlinker -export-dynamic";;
  	# -u libsys_s pulls in all symbols in libsys
  	Darwin/*)
  		LINKFORSHARED="$extra_undefs -framework CoreFoundation"

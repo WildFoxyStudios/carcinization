@@ -6,7 +6,7 @@ diff -ruwN source/configure source-new/configure
  	    ac_sys_system=WASI
  	    ;;
 +	*-*-redox*)
-+		ac_sys_system=Carcinization
++		ac_sys_system=Redox
 +		;;
  	*)
  		# for now, limit cross builds to known configurations
@@ -32,7 +32,7 @@ diff -ruwN source/configure source-new/configure
  #undef cris
  #undef fr30
  #undef linux
-+#undef carcinization
++#undef redox
  #undef hppa
  #undef hpux
  #undef i386
@@ -60,7 +60,7 @@ diff -ruwN source/configure source-new/configure
  	  fi
            ;;
 -    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*|VxWorks*)
-+    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*|VxWorks*|Carcinization*)
++    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*|VxWorks*|Redox*)
  	  LDLIBRARY='libpython$(LDVERSION).so'
  	  BLDLIBRARY='-L. -lpython$(LDVERSION)'
  	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
@@ -69,7 +69,7 @@ diff -ruwN source/configure source-new/configure
  		LDSHARED='$(CC) -shared'
  		LDCXXSHARED='$(CXX) -shared';;
 -	Linux*|GNU*|QNX*|VxWorks*|Haiku*)
-+	Linux*|GNU*|QNX*|VxWorks*|Haiku*|Carcinization*)
++	Linux*|GNU*|QNX*|VxWorks*|Haiku*|Redox*)
  		LDSHARED='$(CC) -shared'
  		LDCXXSHARED='$(CXX) -shared';;
  	FreeBSD*)
@@ -78,7 +78,7 @@ diff -ruwN source/configure source-new/configure
  		 fi;;
  	Linux-android*) ;;
 -	Linux*|GNU*) CCSHARED="-fPIC";;
-+	Linux*|GNU*|Carcinization*) CCSHARED="-fPIC";;
++	Linux*|GNU*|Redox*) CCSHARED="-fPIC";;
  	Emscripten*|WASI*)
  		if test "x$enable_wasm_dynamic_linking" = xyes
  then :
@@ -87,7 +87,7 @@ diff -ruwN source/configure source-new/configure
  #	    LINKFORSHARED="-Wl,-E -Wl,+s -Wl,+b\$(BINLIBDEST)/lib-dynload";;
  	Linux-android*) LINKFORSHARED="-pie -Xlinker -export-dynamic";;
 -	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
-+	Linux*|GNU*|Carcinization*) LINKFORSHARED="-Xlinker -export-dynamic";;
++	Linux*|GNU*|Redox*) LINKFORSHARED="-Xlinker -export-dynamic";;
  	# -u libsys_s pulls in all symbols in libsys
  	Darwin/*)
  		LINKFORSHARED="$extra_undefs -framework CoreFoundation"
@@ -120,6 +120,18 @@ diff -ruwN source/Modules/_cryptmodule.c source-new/Modules/_cryptmodule.c
      if (crypt_result == NULL) {
          return PyErr_SetFromErrno(PyExc_OSError);
      }
+diff -ruwN source/Modules/fcntlmodule.c source-new/Modules/fcntlmodule.c
+--- source/Modules/fcntlmodule.c	2025-10-09 11:07:00.000000000 +0000
++++ source-new/Modules/fcntlmodule.c	2026-10-15 10:21:56.351900218 +0000
+@@ -159,7 +159,7 @@
+        in their unsigned long ioctl codes this will break and need
+        special casing based on the platform being built on.
+      */
+-    int arg = 0;
++    char* arg = 0;
+     int ret;
+     Py_buffer pstr;
+     char *str;
 diff -ruwN source/Modules/resource.c source-new/Modules/resource.c
 --- source/Modules/resource.c	2025-10-09 18:07:00.000000000 +0700
 +++ source-new/Modules/resource.c	2025-12-09 22:14:30.781035339 +0700

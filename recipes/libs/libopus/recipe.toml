@@ -12,7 +12,7 @@ DYNAMIC_INIT
 # Carcinization does not support any of the aarch64 run-time cpu capability detection
 # APIs supported by libopus
 case "${TARGET}" in
-    aarch64-*-carcinization) COOKBOOK_CONFIGURE_FLAGS+=(--disable-rtcd);;
+    aarch64-*-redox) COOKBOOK_CONFIGURE_FLAGS+=(--disable-rtcd);;
 esac
 cookbook_configure
 """

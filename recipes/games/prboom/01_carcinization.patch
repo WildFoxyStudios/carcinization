@@ -7,7 +7,7 @@ diff -burpN source-original/src/m_misc.c source/src/m_misc.c
    f = fopen (defaultfile, "r");
 +#if defined(__redox__)
 +  if (f) {
-+      printf("disabling load of config file on carcinization\n");
++      printf("disabling load of config file on redox\n");
 +      f = NULL;
 +  }
 +#endif

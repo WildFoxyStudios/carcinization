@@ -6,7 +6,7 @@ index 3a6a4329..450e8fe6 100644
    ifeq (GNU/kFreeBSD,$(TARGET_SYS))
      TARGET_XLIBS+= -ldl
    endif
-+  ifeq (Carcinization,$(TARGET_SYS))
++  ifeq (Redox,$(TARGET_SYS))
 +    TARGET_XCFLAGS+= -DLUAJIT_OS=LUAJIT_OS_POSIX
 +  endif
  endif
@@ -17,7 +17,7 @@ index 3a6a4329..450e8fe6 100644
    ifeq (iOS,$(TARGET_SYS))
      HOST_XCFLAGS+= -DLUAJIT_OS=LUAJIT_OS_OSX -DTARGET_OS_IPHONE=1
 +  else
-+  ifeq (Carcinization,$(TARGET_SYS))
++  ifeq (Redox,$(TARGET_SYS))
 +    HOST_XCFLAGS+= -DLUAJIT_OS=LUAJIT_OS_POSIX
    else
      HOST_XCFLAGS+= -DLUAJIT_OS=LUAJIT_OS_OTHER

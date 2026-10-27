@@ -47,7 +47,7 @@ diff -ruw source/src/os/unix/unix.cpp source-new/src/os/unix/unix.cpp
  	return path[1] == '\0';
  #else
 -	/* On MorphOS or AmigaOS paths look like: "Volume:directory/subdirectory" */
-+	/* On Carcinization paths look like: "scheme:/directory/subdirectory" */
++	/* On Redox paths look like: "scheme:/directory/subdirectory" */
  	const char *s = strchr(path, ':');
 -	return s != NULL && s[1] == '\0';
 +	return (s != NULL) && (strlen(s) == 2) && (s[1] == '/') && (s[2] == '\0');
@@ -61,7 +61,7 @@ diff -ruw source/src/os/unix/unix.cpp source-new/src/os/unix/unix.cpp
 -#if defined(__MORPHOS__) || defined(__AMIGAOS__)
 -	/* On MorphOS or AmigaOS paths look like: "Volume:directory/subdirectory" */
 +#if defined(__redox__)
-+	/* On Carcinization paths look like: "scheme:/directory/subdirectory" */
++	/* On Redox paths look like: "scheme:/directory/subdirectory" */
  	if (FiosIsRoot(path)) {
 -		res = seprintf(filename, lastof(filename), "%s:%s", path, ent->d_name);
 +		res = seprintf(filename, lastof(filename), "%s%s", path, ent->d_name);

@@ -5,7 +5,7 @@
                     &started_at.kernel_time, &started_at.user_time);
    stopped_at = started_at;
 +#elif defined(__redox__)
-+  //TODO: times on carcinization
++  //TODO: times on redox
  #else
    struct tms tmp;
  
@@ -14,7 +14,7 @@
                     &stopped_at.creation_time, &stopped_at.exit_time,
                     &stopped_at.kernel_time, &stopped_at.user_time);
 +#elif defined(__redox__)
-+  //TODO: times on carcinization
++  //TODO: times on redox
  #else
    struct tms tmp;
  

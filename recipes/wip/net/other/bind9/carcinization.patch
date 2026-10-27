@@ -7,7 +7,7 @@ index 61cb4bc22..20df0e7e3 100644
  		os=-nsk
  		;;
 +	-redox*)
-+		os=-carcinization
++		os=-redox
 +		;;
  	# Preserve the version number of sinix5.
  	-sinix5.*)

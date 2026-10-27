@@ -59,8 +59,8 @@ diff -ruwN source/deps/v8/bazel/config/BUILD.bazel source-new/deps/v8/bazel/conf
  )
  
  config_setting(
-+    name = "is_carcinization",
-+    constraint_values = ["@platforms//os:carcinization"],
++    name = "is_redox",
++    constraint_values = ["@platforms//os:redox"],
 +)
 +
 +config_setting(
@@ -71,7 +71,7 @@ diff -ruwN source/deps/v8/bazel/config/BUILD.bazel source-new/deps/v8/bazel/conf
  selects.config_setting_group(
      name = "is_non_android_posix",
      match_any = [
-+        ":is_carcinization",
++        ":is_redox",
          ":is_linux",
          ":is_macos",
      ],
@@ -82,7 +82,7 @@ diff -ruwN source/deps/v8/BUILD.bazel source-new/deps/v8/BUILD.bazel
              "src/base/debug/stack_trace_posix.cc",
              "src/base/platform/platform-darwin.cc",
          ],
-+        "@v8//bazel/config:is_carcinization": [
++        "@v8//bazel/config:is_redox": [
 +            "src/base/debug/stack_trace_posix.cc",
 +            "src/base/platform/platform-redox.cc",
 +            "src/base/platform/platform-redox.h",
@@ -98,7 +98,7 @@ diff -ruwN source/deps/v8/BUILD.gn source-new/deps/v8/BUILD.gn
        # iOS Xcode simulator builds run on an x64 target. iOS and macOS are both
        # based on Darwin and thus POSIX-compliant to a similar degree.
 -      if (is_linux || is_chromeos || is_mac || is_ios ||
-+      if (is_linux || is_carcinization || is_chromeos || is_mac || is_ios ||
++      if (is_linux || is_redox || is_chromeos || is_mac || is_ios ||
            target_os == "freebsd") {
 +        assert(false, "gatchs")
          sources += [
@@ -110,8 +110,8 @@ diff -ruwN source/deps/v8/BUILD.gn source-new/deps/v8/BUILD.gn
        # x64 on Linux, Mac, and Windows.
 -      if ((current_cpu == "arm64" && (is_linux || is_chromeos || is_apple)) ||
 -          (current_cpu == "x64" && (is_linux || is_chromeos || is_mac))) {
-+      if ((current_cpu == "arm64" && (is_linux || is_carcinization || is_chromeos || is_apple)) ||
-+          (current_cpu == "x64" && (is_linux || is_carcinization || is_chromeos || is_mac))) {
++      if ((current_cpu == "arm64" && (is_linux || is_redox || is_chromeos || is_apple)) ||
++          (current_cpu == "x64" && (is_linux || is_redox || is_chromeos || is_mac))) {
          sources += [
            "src/trap-handler/handler-inside-posix.cc",
            "src/trap-handler/handler-outside-posix.cc",
@@ -119,7 +119,7 @@ diff -ruwN source/deps/v8/BUILD.gn source-new/deps/v8/BUILD.gn
        "src/base/debug/stack_trace_posix.cc",
        "src/base/platform/platform-darwin.cc",
      ]
-+  } else if (is_carcinization) {
++  } else if (is_redox) {
 +    sources += [
 +      "src/base/debug/stack_trace_posix.cc",
 +      "src/base/platform/platform-redox.cc",
@@ -137,7 +137,7 @@ diff -ruwN source/deps/v8/include/v8config.h source-new/deps/v8/include/v8config
 +#elif defined(__redox__)
 +# define V8_OS_POSIX 1
 +# define V8_OS_REDOX 1
-+# define V8_OS_STRING "carcinization"
++# define V8_OS_STRING "redox"
 +
  #elif defined(_WIN32)
  # define V8_OS_WIN 1
@@ -174,7 +174,7 @@ diff -ruwN source/deps/v8/include/v8config.h source-new/deps/v8/include/v8config
  #elif defined(V8_TARGET_OS_MACOS)
  # define V8_TARGET_OS_STRING "macos"
 +#elif defined(V8_TARGET_OS_REDOX)
-+# define V8_TARGET_OS_STRING "carcinization"
++# define V8_TARGET_OS_STRING "redox"
  #elif defined(V8_TARGET_OS_WINDOWS)
  # define V8_TARGET_OS_STRING "windows"
  #else
@@ -250,7 +250,7 @@ diff -ruwN source/deps/v8/src/base/platform/platform-redox.cc source-new/deps/v8
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
 +
-+// Platform specific code for Carcinization goes here. For the POSIX comaptible parts
++// Platform specific code for Redox goes here. For the POSIX comaptible parts
 +// the implementation is in platform-posix.cc.
 +
 +#include <signal.h>
@@ -439,7 +439,7 @@ diff -ruwN source/src/node_dotenv.cc source-new/src/node_dotenv.cc
   * available at https://github.com/motdotla/dotenv
   */
 +
-+// carcinization crash on compiling this regex
++// redox crash on compiling this regex
 +#if !defined(__redox__)
  const std::regex LINE(
      "\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^']"
@@ -484,8 +484,8 @@ diff -ruwN source/tools/gyp/pylib/gyp/common.py source-new/tools/gyp/pylib/gyp/c
          return "netbsd"
      if sys.platform.startswith("aix"):
          return "aix"
-+    if sys.platform.startswith("carcinization"):
-+        return "carcinization"
++    if sys.platform.startswith("redox"):
++        return "redox"
      if sys.platform.startswith(("os390", "zos")):
          return "zos"
      if sys.platform == "os400":
@@ -507,7 +507,7 @@ diff -ruwN source/tools/gyp/pylib/gyp/generator/make.py source-new/tools/gyp/pyl
                  and not self.is_standalone_static_library
              ):
 -                if self.flavor in ("linux", "android"):
-+                if self.flavor in ("linux", "android", "carcinization"):
++                if self.flavor in ("linux", "android", "redox"):
                      self.WriteMakeRule(
                          [self.output_binary],
                          link_deps,
@@ -516,7 +516,7 @@ diff -ruwN source/tools/gyp/pylib/gyp/generator/make.py source-new/tools/gyp/pyl
                      )
              else:
 -                if self.flavor in ("linux", "android"):
-+                if self.flavor in ("linux", "android", "carcinization"):
++                if self.flavor in ("linux", "android", "redox"):
                      self.WriteMakeRule(
                          [self.output_binary],
                          link_deps,
@@ -528,7 +528,7 @@ diff -ruwN source/tools/v8_gypfiles/d8.gyp source-new/tools/v8_gypfiles/d8.gyp
          ['(OS=="linux" or OS=="mac" or OS=="freebsd" or OS=="netbsd" \
             or OS=="openbsd" or OS=="solaris" or OS=="android" \
 -           or OS=="qnx" or OS=="aix" or OS=="os400")', {
-+           or OS=="qnx" or OS=="aix" or OS=="carcinization" or OS=="os400")', {
++           or OS=="qnx" or OS=="aix" or OS=="redox" or OS=="os400")', {
               'sources': [ '<(V8_ROOT)/src/d8/d8-posix.cc', ]
             }],
          [ 'OS=="win"', {
@@ -539,7 +539,7 @@ diff -ruwN source/tools/v8_gypfiles/toolchain.gypi source-new/tools/v8_gypfiles/
            'V8_TARGET_OS_MACOS',
          ]
        }],
-+      ['OS=="carcinization"', {
++      ['OS=="redox"', {
 +        'defines': [
 +          'V8_HAVE_TARGET_OS',
 +          'V8_TARGET_OS_REDOX',
@@ -553,7 +553,7 @@ diff -ruwN source/tools/v8_gypfiles/toolchain.gypi source-new/tools/v8_gypfiles/
        }],
        ['OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris" \
 -         or OS=="netbsd" or OS=="qnx" or OS=="aix" or OS=="os400"', {
-+         or OS=="netbsd" or OS=="qnx" or OS=="aix" or OS=="carcinization" or OS=="os400"', {
++         or OS=="netbsd" or OS=="qnx" or OS=="aix" or OS=="redox" or OS=="os400"', {
          'conditions': [
            [ 'v8_no_strict_aliasing==1', {
              'cflags': [ '-fno-strict-aliasing' ],
@@ -565,7 +565,7 @@ diff -ruwN source/tools/v8_gypfiles/v8.gyp source-new/tools/v8_gypfiles/v8.gyp
                ['v8_enable_webassembly==1', {
                  'conditions': [
 -                  ['OS=="linux" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
-+                  ['OS=="linux" or OS=="carcinization" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
++                  ['OS=="linux" or OS=="redox" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
                      'sources': [
                        '<(V8_ROOT)/src/trap-handler/handler-inside-posix.h',
                      ],
@@ -574,7 +574,7 @@ diff -ruwN source/tools/v8_gypfiles/v8.gyp source-new/tools/v8_gypfiles/v8.gyp
                ['v8_enable_webassembly==1', {
                  'conditions': [
 -                  ['((_toolset=="host" and host_arch=="arm64" or _toolset=="target" and target_arch=="arm64") and (OS=="linux" or OS=="mac")) or ((_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="mac"))', {
-+                  ['((_toolset=="host" and host_arch=="arm64" or _toolset=="target" and target_arch=="arm64") and (OS=="linux" or OS=="mac")) or ((_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="carcinization" or OS=="mac"))', {
++                  ['((_toolset=="host" and host_arch=="arm64" or _toolset=="target" and target_arch=="arm64") and (OS=="linux" or OS=="mac")) or ((_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="redox" or OS=="mac"))', {
                      'sources': [
                        '<(V8_ROOT)/src/trap-handler/handler-inside-posix.h',
                      ],
@@ -583,7 +583,7 @@ diff -ruwN source/tools/v8_gypfiles/v8.gyp source-new/tools/v8_gypfiles/v8.gyp
              ['v8_enable_webassembly==1', {
                'conditions': [
 -                ['OS=="linux" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
-+                ['OS=="linux" or OS=="carcinization" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
++                ['OS=="linux" or OS=="redox" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
                    'sources': [
                      '<(V8_ROOT)/src/trap-handler/handler-inside-posix.cc',
                      '<(V8_ROOT)/src/trap-handler/handler-outside-posix.cc',
@@ -592,7 +592,7 @@ diff -ruwN source/tools/v8_gypfiles/v8.gyp source-new/tools/v8_gypfiles/v8.gyp
              ['v8_enable_webassembly==1', {
                'conditions': [
 -                ['((_toolset=="host" and host_arch=="arm64" or _toolset=="target" and target_arch=="arm64") and (OS=="linux" or OS=="mac" or OS=="ios")) or ((_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="mac"))', {
-+                ['((_toolset=="host" and host_arch=="arm64" or _toolset=="target" and target_arch=="arm64") and (OS=="linux" or OS=="carcinization" or OS=="mac" or OS=="ios")) or ((_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="carcinization" or OS=="mac"))', {
++                ['((_toolset=="host" and host_arch=="arm64" or _toolset=="target" and target_arch=="arm64") and (OS=="linux" or OS=="redox" or OS=="mac" or OS=="ios")) or ((_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="redox" or OS=="mac"))', {
                    'sources': [
                      '<(V8_ROOT)/src/trap-handler/handler-inside-posix.cc',
                      '<(V8_ROOT)/src/trap-handler/handler-outside-posix.cc',
@@ -601,7 +601,7 @@ diff -ruwN source/tools/v8_gypfiles/v8.gyp source-new/tools/v8_gypfiles/v8.gyp
                    ],
                  }],
 -                ['(_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="mac" or OS=="win")', {
-+                ['(_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="carcinization" or OS=="mac" or OS=="win")', {
++                ['(_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux" or OS=="redox" or OS=="mac" or OS=="win")', {
                    'sources': [
                      '<(V8_ROOT)/src/trap-handler/handler-outside-simulator.cc',
                    ],
@@ -609,7 +609,7 @@ diff -ruwN source/tools/v8_gypfiles/v8.gyp source-new/tools/v8_gypfiles/v8.gyp
          # end of conditions from 'BUILD.gn'
  
          # Node.js validated
-+        ['OS=="carcinization"', {
++        ['OS=="redox"', {
 +          'link_settings': {
 +            'target_conditions': [
 +              ['_toolset=="host"', {

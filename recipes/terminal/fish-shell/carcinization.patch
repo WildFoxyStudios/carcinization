@@ -26,7 +26,7 @@ index 72e536f81..0fcb6ba91 100644
          }),
          ("FISH_USE_POSIX_SPAWN", &|target| {
 -            Ok(target.has_header("spawn.h"))
-+            Ok(false) // FIXME: expose to carcinization libc spawn
++            Ok(false) // FIXME: expose to redox libc spawn
          }),
          ("HAVE_PIPE2", &|target| {
              Ok(target.has_symbol("pipe2"))

@@ -26,7 +26,7 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_committed_pages_vector.c 
  
  #if PAS_OS(LINUX)
      PAS_SYSCALL(mincore(object, size, (unsigned char*)vector->raw_data));
-+#elif PAS_OS(CARCINIZATION)
++#elif PAS_OS(REDOX)
 +    // no op
  #else
      PAS_SYSCALL(mincore(object, size, vector->raw_data));
@@ -38,8 +38,8 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_committed_pages_vector.h 
      PAS_ASSERT(page_index < vector->size);
  #if PAS_OS(LINUX)
      return vector->raw_data[page_index];
-+#elif PAS_OS(CARCINIZATION)
-+    return true; // carcinization don't have swap yet
++#elif PAS_OS(REDOX)
++    return true; // redox don't have swap yet
  #else
      return vector->raw_data[page_index] & (MINCORE_REFERENCED |
                                             MINCORE_REFERENCED_OTHER |
@@ -62,7 +62,7 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_monotonic_time.c source-n
  }
  
 +
-+#elif PAS_OS(CARCINIZATION)
++#elif PAS_OS(REDOX)
 +
 +uint64_t pas_get_current_monotonic_time_nanoseconds(void)
 +{
@@ -80,7 +80,7 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_page_malloc.c source-new/
      PAS_SYSCALL(madvise(ptr, size, MADV_DODUMP));
  #elif PAS_PLATFORM(PLAYSTATION)
      // We don't need to call madvise to map page.
-+#elif PAS_OS(CARCINIZATION)
++#elif PAS_OS(REDOX)
 +    // madvise not implemented
  #elif PAS_OS(FREEBSD)
      PAS_SYSCALL(madvise(ptr, size, MADV_NORMAL));
@@ -89,7 +89,7 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_page_malloc.c source-new/
  #elif PAS_OS(LINUX)
      PAS_SYSCALL(madvise(ptr, size, MADV_DONTNEED));
      PAS_SYSCALL(madvise(ptr, size, MADV_DONTDUMP));
-+#elif PAS_OS(CARCINIZATION)
++#elif PAS_OS(REDOX)
 +    // madvise not implemented
  #else
      PAS_SYSCALL(madvise(ptr, size, MADV_DONTNEED));
@@ -102,7 +102,7 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_platform.h source-new/Sou
  #endif
  
 +#ifdef __redox__
-+#define PAS_OS_CARCINIZATION 1
++#define PAS_OS_REDOX 1
 +#endif
 +
  #if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__FreeBSD_kernel__)
@@ -149,7 +149,7 @@ diff -ruwN source/Source/bmalloc/libpas/src/libpas/pas_thread_local_cache.c sour
  #endif
  #if PAS_PLATFORM(PLAYSTATION)
      getname_result = pthread_get_name_np(thread, thread_name);
-+#elif PAS_OS(CARCINIZATION)
++#elif PAS_OS(REDOX)
 +    // no op
 +    getname_result = -1;
  #else
@@ -670,3 +670,29 @@ diff -ruwN source/Source/WTF/wtf/posix/ThreadingPOSIX.cpp source-new/Source/WTF/
      Locker locker { m_mutex };
  
      int policy;
+diff -ruwN source/Source/WebKit/UIProcess/gtk/AcceleratedBackingStoreDMABuf.cpp source-new/Source/WebKit/UIProcess/gtk/AcceleratedBackingStoreDMABuf.cpp
+--- source/Source/WebKit/UIProcess/gtk/AcceleratedBackingStoreDMABuf.cpp	2025-03-07 11:11:01.594008200 +0000
++++ source-new/Source/WebKit/UIProcess/gtk/AcceleratedBackingStoreDMABuf.cpp	2026-09-27 19:45:00.480807469 +0000
+@@ -82,7 +82,9 @@
+     static OptionSet<RendererBufferTransportMode> mode;
+     static std::once_flag onceFlag;
+     std::call_once(onceFlag, [] {
+-        const char* disableDMABuf = getenv("WEBKIT_DISABLE_DMABUF_RENDERER");
++        // redox: the mesa implementation for dma-buf renderer is incomplete
++        // https://blogs.igalia.com/carlosgc/2023/04/03/webkitgtk-accelerated-compositing-rendering/
++        const char* disableDMABuf = "1";// getenv("WEBKIT_DISABLE_DMABUF_RENDERER");
+         if (disableDMABuf && strcmp(disableDMABuf, "0"))
+             return;
+ 
+diff -ruwN source/Source/WTF/wtf/FileSystem.cpp source-new/Source/WTF/wtf/FileSystem.cpp
+--- source/Source/WTF/wtf/FileSystem.cpp	2025-03-21 11:07:10.828055100 +0000
++++ source-new/Source/WTF/wtf/FileSystem.cpp	2026-10-03 11:58:07.275782479 +0000
+@@ -360,7 +360,7 @@
+     mprotect(map, bytesSize, PROT_READ);
+ 
+     // Flush (asynchronously) to file, turning this into clean memory.
+-    msync(map, bytesSize, MS_ASYNC);
++    // msync(map, bytesSize, MS_ASYNC); // redox: msync unimplemented
+ #endif
+ }
+ 

@@ -5,7 +5,7 @@ diff -rupN source-original/configure source/configure
          ;;
      minix)
          ;;
-+    carcinization)
++    redox)
 +        ;;
      none)
          ;;

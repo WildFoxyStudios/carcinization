@@ -7,7 +7,7 @@ index 7ffe373..e2368e0 100755
  	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
  	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
 -	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos*)
-+	      | -skyos* | -haiku* | -rdos* |  -carcinization* | -toppers* | -drops* | -es* | -tirtos*)
++	      | -skyos* | -haiku* | -rdos* |  -redox* | -toppers* | -drops* | -es* | -tirtos*)
  	# Remember, each alternative MUST END IN *, to match a version number.
  		;;
  	-qnx*)

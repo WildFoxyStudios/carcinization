@@ -6,7 +6,7 @@ diff -rupNw source-original/config.sub source/config.sub
  	      | -*vms* | -sco* | -esix* | -isc* | -aix* | -cnk* | -sunos | -sunos[34]*\
  	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -solaris* | -sym* \
 -	      | -kopensolaris* \
-+	      | -kopensolaris* | -carcinization* \
++	      | -kopensolaris* | -redox* \
  	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
  	      | -aos* | -aros* \
  	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \

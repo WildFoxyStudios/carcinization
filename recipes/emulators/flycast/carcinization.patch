@@ -16,7 +16,7 @@ index 8340288f..c64fad9d 100644
  
  	if(NOT ANDROID AND NOT IOS)
 -		if (NOT NINTENDO_SWITCH)
-+		if (NOT NINTENDO_SWITCH AND NOT CARCINIZATION)
++		if (NOT NINTENDO_SWITCH AND NOT REDOX)
  			# DreamLink enabled for non-mobile Linux, MacOS, and Windows
  			target_compile_definitions(${PROJECT_NAME} PRIVATE USE_DREAMLINK_DEVICES=1)
  			set(USE_DREAMLINK_DEVICES ON) # Must be set before adding core/sdl
@@ -39,7 +39,7 @@ index 8340288f..c64fad9d 100644
  
  if(NOT MINIUPNP_FOUND)
 -	if(NINTENDO_SWITCH)
-+    if(NINTENDO_SWITCH OR CARCINIZATION)
++    if(NINTENDO_SWITCH OR REDOX)
  		target_compile_definitions(${PROJECT_NAME} PRIVATE FEAT_NO_MINIUPNPC)
  	else()
  		option(UPNPC_BUILD_SHARED "Build shared library" OFF)
@@ -97,7 +97,7 @@ index af9de30e..6f839fc7 100644
  
  void mmu_set_state()
  {
-+	/* // TODO: crashing a thread in carcinization
++	/* // TODO: crashing a thread in redox
  	if (CCN_MMUCR.AT == 1)
  	{
  		// Detect if we're running Windows CE
@@ -211,7 +211,7 @@ index 35b41b70..b62edfc2 100644
  
  void BaseTextureCacheData::protectVRam()
  {
-+	// TODO: No SIGSEGV handler on carcinization
++	// TODO: No SIGSEGV handler on redox
 +	#ifdef __redox__
 +		return;
 +	#endif

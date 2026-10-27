@@ -14,7 +14,7 @@ diff -rupwN source/Common.mak source-new/Common.mak
      CCFULLPATH = $(DEVKITPPC)/bin/$(CC)
  endif
  
-+ifeq ($(PLATFORM),CARCINIZATION)
++ifeq ($(PLATFORM),REDOX)
 +    CROSS := $(TARGET)-
 +endif
 +
@@ -25,7 +25,7 @@ diff -rupwN source/Common.mak source-new/Common.mak
      override NOASM := 1
  else ifeq ($(PLATFORM),$(filter $(PLATFORM),BEOS SKYOS))
      override NOASM := 1
-+else ifeq ($(PLATFORM),CARCINIZATION)
++else ifeq ($(PLATFORM),REDOX)
 +    override HAVE_FLAC := 0
 +    override HAVE_GTK2 := 0
 +    override HAVE_XMP := 0
@@ -51,12 +51,12 @@ diff -rupwN source/Common.mak source-new/Common.mak
      LIBS += -laesnd_tueidj -lfat -lwiiuse -lbte -lwiikeyboard -logc
  else ifeq ($(SUBPLATFORM),LINUX)
      LIBS += -lrt
-+else ifeq ($(PLATFORM),CARCINIZATION)
++else ifeq ($(PLATFORM),REDOX)
 +    LIBS += -lorbital -lvorbisfile -lvorbis -logg
  endif
  
 -ifeq (,$(filter $(PLATFORM),WINDOWS WII))
-+ifeq (,$(filter $(PLATFORM),WINDOWS WII CARCINIZATION))
++ifeq (,$(filter $(PLATFORM),WINDOWS WII REDOX))
      ifneq ($(PLATFORM),BSD)
          LIBS += -ldl
      endif

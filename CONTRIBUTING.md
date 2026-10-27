@@ -254,6 +254,31 @@ make all USE_SELINUX=0
 
 You can find the build system organization and commands on the [Build System](https://doc.redox-os.org/book/build-system-reference.html) page.
 
+### Building the build system itself
+
+The `make` targets drive the `repo` binary, which is built from this repository.
+After a fresh checkout, or after the `target` directory has been cleaned, it has
+to be built before anything else, and **all** of its binaries are needed:
+
+```sh
+cargo build --release --bins
+```
+
+Building only one of them is not enough. `repo` runs the scripts of every
+recipe through `cookbook_carcinizer`, and it hands the finished packages over
+to `repo_builder`; both are looked up next to the `repo` binary itself. When
+one of them is missing, the build stops with an error that does not name the
+program, such as `Spawning failed: No such file or directory`.
+
+### Patches of the cookbook
+
+The patches that the cookbook applies to the upstream sources belong to the
+upstream project and keep its identifiers. The way to check that they are
+still in sync is to compare them with the cookbook upstream, which is what
+`scripts/restaurar-parches.sh` does: it downloads the upstream patch, undoes
+the renaming on the local copy and compares the two. A patch is only restored
+when the renaming is the only difference, so local changes are never lost.
+
 ### Debian source packages
 
 A recipe can take its sources from a Debian source package instead of a plain

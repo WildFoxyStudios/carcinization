@@ -77,7 +77,7 @@ diff '--color=auto' -rupwN source/Makefile source-new/Makefile
 +SDL_VERSION = sdl
  endif
 +
-+ifeq ($(HOST_OS),carcinization)
++ifeq ($(HOST_OS),redox)
 +SDL_CFLAGS = $(shell $(PKG_CONFIG) --cflags $(SDL_VERSION))
 +SDL_LIBS = $(shell $(PKG_CONFIG) --libs $(SDL_VERSION))
 +else
@@ -91,7 +91,7 @@ diff '--color=auto' -rupwN source/Makefile source-new/Makefile
  
  ifeq ($(HOST_OS),haiku)
  COMMON_LIBS= -lGL
-+else ifeq ($(HOST_OS),carcinization)
++else ifeq ($(HOST_OS),redox)
 +COMMON_LIBS= -lorbital $(shell $(PKG_CONFIG) --libs osmesa zlib)
  else
  COMMON_LIBS= -lGL -lm

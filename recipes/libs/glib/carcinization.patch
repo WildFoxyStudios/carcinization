@@ -65,7 +65,7 @@ diff -ruwN glib-2.87.0/gio/gsocket.c source/gio/gsocket.c
  	  int errsv = get_socket_errno ();
  
 -	  if (errsv == EINTR)
-+    // TODO: uds connect() in carcinization is blocking
++    // TODO: uds connect() in redox is blocking
 +	  if (errsv == EINTR || errsv == EAGAIN)
  	    continue;
  
@@ -89,7 +89,7 @@ diff -ruwN glib-2.87.0/gio/gthreadedresolver.c source/gio/gthreadedresolver.c
 -#if defined(G_OS_UNIX)
 +#if defined(__redox__)
 +  g_set_error (error, G_RESOLVER_ERROR, G_RESOLVER_ERROR_INTERNAL,
-+                _("No support for resolving “%s” on carcinization"), rrname);
++                _("No support for resolving “%s” on redox"), rrname);
 +  return NULL;
 +#elif defined(G_OS_UNIX)
    gint len = 512;
@@ -148,7 +148,7 @@ diff -ruwN glib-2.87.0/gio/gunixmounts.c source/gio/gunixmounts.c
 +                                    uint64_t   *time_read_out,
 +                                    size_t     *n_points_out)
 +{
-+  /* Not supported on Carcinization. */
++  /* Not supported on Redox. */
 +  if (time_read_out != NULL)
 +    *time_read_out = 0;
 +  if (n_points_out != NULL)
@@ -159,7 +159,7 @@ diff -ruwN glib-2.87.0/gio/gunixmounts.c source/gio/gunixmounts.c
 +static GList *
 +_g_get_unix_mount_points (void)
 +{
-+  /* Not supported on Carcinization. */
++  /* Not supported on Redox. */
 +  return NULL;
 +}
 +

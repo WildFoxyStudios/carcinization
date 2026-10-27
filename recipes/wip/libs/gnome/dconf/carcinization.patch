@@ -6,7 +6,7 @@ diff -ruwN source-old/shm/dconf-shm.c source/shm/dconf-shm.c
        close (fd);
  
 -      unlink (filename);
-+      //TODO: carcinizationfs bug: unlink (filename);
++      //TODO: redoxfs bug: unlink (filename);
      }
  
    g_free (filename);

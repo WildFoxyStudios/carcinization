@@ -17,7 +17,7 @@ diff -ruwN source/Configurations/10-main.conf source-new/Configurations/10-main.
          shared_extension => ".so",
      },
  
-+### Carcinization configurations
++### Redox configurations
 +    "redox-common" => {
 +        inherit_from     => [ "BASE_unix" ],
 +        cc               => "gcc",

@@ -27,7 +27,7 @@ export LDFLAGS+=" -lorbital"
 
 if [ "${COOKBOOK_DYNAMIC}" = "1" ]; then
     # TODO: Fix wayland-scanner and enable wayland platform
-    COOKBOOK_MESON_FLAGS+=(-Dshared-llvm=enabled -Degl=enabled -Dplatforms=carcinization -Dvulkan-drivers=swrast)
+    COOKBOOK_MESON_FLAGS+=(-Dshared-llvm=enabled -Degl=enabled -Dplatforms=redox -Dvulkan-drivers=swrast)
 else
     # No vulkan, lavapipe or EGL which is strictly requires shared library support
     COOKBOOK_MESON_FLAGS+=(-Dshared-llvm=disabled -Dshared-glapi=disabled -Dgbm=disabled -Dplatforms=)

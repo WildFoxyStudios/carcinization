@@ -6,7 +6,7 @@ diff -ruwN source/configure source-new/configure
          fi
          ;;
 +    redox*)
-+        SYS="CARCINIZATION"
++        SYS="REDOX"
 +        define HAVE_MALLOC_H
 +        libm=""
 +        ;;

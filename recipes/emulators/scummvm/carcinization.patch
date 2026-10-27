@@ -18,7 +18,7 @@ diff -rupNw source-original/configure source/configure
  		_posix=no
  		;;
 -	3ds | android | androidsdl | beos* | bsd* | darwin* | freebsd* | gnu* | gph-linux | haiku* | hpux* | iphone | ios7 | irix*| k*bsd*-gnu* | linux* | maemo | mint* | netbsd* | openbsd* | riscos | solaris* | sunos* | uclinux* | webos)
-+	3ds | android | androidsdl | beos* | bsd* | darwin* | freebsd* | gnu* | gph-linux | haiku* | hpux* | iphone | ios7 | irix*| k*bsd*-gnu* | linux* | maemo | mint* | netbsd* | openbsd* | riscos | carcinization* | solaris* | sunos* | uclinux* | webos)
++	3ds | android | androidsdl | beos* | bsd* | darwin* | freebsd* | gnu* | gph-linux | haiku* | hpux* | iphone | ios7 | irix*| k*bsd*-gnu* | linux* | maemo | mint* | netbsd* | openbsd* | riscos | redox* | solaris* | sunos* | uclinux* | webos)
  		_posix=yes
  		;;
  	os2-emx*)

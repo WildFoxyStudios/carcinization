@@ -5,7 +5,7 @@ diff --color -ruwN source/lib/freadahead.c source-new/lib/freadahead.c
    if (fp->state == 4 /* WR */ || fp->rp >= fp->wp)
      return 0;
    return fp->wp - fp->rp;
-+#elif defined __redox__                /* Carcinization */
++#elif defined __redox__                /* Redox */
 +  return 0;
  #elif defined SLOW_BUT_NO_HACKS     /* users can define this */
    abort ();

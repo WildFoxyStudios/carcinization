@@ -12,7 +12,7 @@ OS=$(echo "${TARGET}" | cut -d - -f3)
 
 case "${OS}" in
     linux)  SYS=Linux;;
-    carcinization)  SYS=Carcinization;;
+    redox)  SYS=Redox;;
 esac
 
 ${COOKBOOK_MAKE} -j ${COOKBOOK_MAKE_JOBS} install \
