@@ -17,7 +17,7 @@
 //! - `apt-cache` — read-only queries.
 
 use std::path::PathBuf;
-use std::process::{Command, ExitCode};
+use std::process::{Command, ExitCode, Stdio};
 
 use crate::deb_abi;
 use crate::deb_install::Installer;
@@ -731,15 +731,27 @@ pub fn run() -> ExitCode {
             ExitCode::SUCCESS
         }
         Plan::Run(pkg_args) => {
+            // The native `pkgar` packages are built against relibc and work.
+            // Only the packages the native repository does not provide are
+            // taken from a Debian archive, whose binaries need glibc and
+            // therefore do not run here without being rebuilt.
+            //
+            // Which repository has the package is decided by asking the
+            // native repository, because `pkg` reports a package it does not
+            // have with an error message but still exits successfully.
+            if pkg_args.first().map(|a| a.as_str()) == Some("install")
+                && let Some(code) = install_missing_from_mirror(&rest, &options, mode)
+            {
+                return code;
+            }
+
             let code = run_pkg(&pkg_args, mode);
             if code == ExitCode::SUCCESS {
                 return code;
             }
 
-            // The native `pkgar` packages are built against relibc and work.
-            // Only when `pkg` does not know the package do we fall back to a
-            // Debian archive, whose binaries need glibc and therefore do not
-            // run here without being rebuilt.
+            // `pkg` failed for another reason than a missing package, so the
+            // Debian archive gets the last word.
             if pkg_args.first().map(|a| a.as_str()) == Some("install")
                 && let Some(code) = install_from_mirror_fallback(&rest, &options)
             {
@@ -767,15 +779,78 @@ fn run_pkg(args: &[String], mode: Mode) -> ExitCode {
     }
 }
 
+/// Install the requested packages that the native repository does not provide.
+///
+/// The packages the native repository does have are left to `pkg`, which
+/// installs them from the relibc linked archives.
+///
+/// Returns `None` when every requested package is available natively, so that
+/// the caller can hand the whole request to `pkg`.
+fn install_missing_from_mirror(args: &[String], options: &Options, mode: Mode) -> Option<ExitCode> {
+    let names = requested_packages(args);
+    if names.is_empty() {
+        return None;
+    }
+
+    let mut native = Vec::new();
+    let mut missing = Vec::new();
+    for name in names {
+        match native_repo_has(name) {
+            Some(false) => missing.push(name),
+            _ => native.push(name),
+        }
+    }
+    if missing.is_empty() {
+        return None;
+    }
+
+    let mut failed = false;
+    for name in &missing {
+        match install_one_from_mirror(name, options) {
+            Some(code) => {
+                if code != ExitCode::SUCCESS {
+                    failed = true;
+                }
+            }
+            None => {
+                eprintln!(
+                    "apt: '{}' is not available in the native repository nor in the Debian archives",
+                    name
+                );
+                failed = true;
+            }
+        }
+    }
+
+    if !native.is_empty() {
+        let mut install_args = vec!["install".to_string()];
+        install_args.extend(native.iter().map(|name| name.to_string()));
+        if run_pkg(&install_args, mode) != ExitCode::SUCCESS {
+            failed = true;
+        }
+    }
+
+    Some(if failed {
+        ExitCode::from(1)
+    } else {
+        ExitCode::SUCCESS
+    })
+}
+
 /// Try to satisfy an install request from the configured Debian mirrors.
 ///
 /// Returns `None` when the mirror does not know the package either.
 fn install_from_mirror_fallback(args: &[String], options: &Options) -> Option<ExitCode> {
-    let operands: Vec<&String> = args.iter().filter(|a| !a.starts_with('-')).collect();
-    let name = operands.get(1)?;
+    let name = requested_packages(args).first().copied()?;
+    install_one_from_mirror(name, options)
+}
 
+/// Install a single package from the Debian mirrors.
+///
+/// Returns `None` when no configured mirror knows the package.
+fn install_one_from_mirror(name: &str, options: &Options) -> Option<ExitCode> {
     let (index, sources) = packages_index(options)?;
-    let entry = index.get(name.as_str())?;
+    let entry = index.get(name)?;
 
     eprintln!(
         "Note: '{}' is not available as a Carcinization package, \
@@ -790,6 +865,59 @@ fn install_from_mirror_fallback(args: &[String], options: &Options) -> Option<Ex
             Some(ExitCode::from(1))
         }
     }
+}
+
+/// The package names an install request asks for.
+///
+/// The first non-flag argument is the command itself, the rest are package
+/// names.
+fn requested_packages(args: &[String]) -> Vec<&str> {
+    args.iter()
+        .filter(|arg| !arg.starts_with('-'))
+        .skip(1)
+        .map(|arg| arg.as_str())
+        .collect()
+}
+
+/// Extract the package names from the output of `pkg search`.
+///
+/// The output is a numbered list such as `12: relibc`. Only the index may be
+/// coloured, so the name itself is plain text.
+fn package_names(output: &[u8]) -> Vec<String> {
+    String::from_utf8_lossy(output)
+        .lines()
+        .filter_map(|line| line.split_once(": "))
+        .map(|(_, name)| name.trim().to_string())
+        .filter(|name| !name.is_empty())
+        .collect()
+}
+
+/// Whether the native package repository provides a package with this exact
+/// name.
+///
+/// `pkg` reports a package that its repository does not have with an error
+/// message, but still exits with a success status, so its exit code cannot be
+/// used to find out whether a request was satisfied. The repository is asked
+/// directly instead.
+///
+/// Returns `None` when the repository cannot be queried at all, so that the
+/// caller can let `pkg` try the request itself.
+fn native_repo_has(name: &str) -> Option<bool> {
+    let output = Command::new(find_pkg())
+        .arg("search")
+        .arg(name)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    Some(
+        package_names(&output.stdout)
+            .iter()
+            .any(|found| found == name),
+    )
 }
 
 #[cfg(test)]
@@ -965,5 +1093,37 @@ mod tests {
         assert_eq!(Mode::from_program("/usr/bin/apt-cache"), Mode::AptCache);
         assert_eq!(Mode::from_program("apt"), Mode::Apt);
         assert_eq!(Mode::from_program("/usr/bin/apt"), Mode::Apt);
+    }
+
+    #[test]
+    fn requested_packages_skip_the_command() {
+        assert_eq!(
+            requested_packages(&args(&["install", "hello"])),
+            vec!["hello"]
+        );
+        assert_eq!(
+            requested_packages(&args(&["install", "hello", "curl"])),
+            vec!["hello", "curl"]
+        );
+        assert!(requested_packages(&args(&["install"])).is_empty());
+    }
+
+    #[test]
+    fn package_names_are_read_from_pkg_search_output() {
+        let output = b"1: nushell\n2: hello-redox\n3: relibc\n";
+        assert_eq!(
+            package_names(output),
+            vec!["nushell", "hello-redox", "relibc"]
+        );
+    }
+
+    /// `pkg search` matches on substrings, so `hello` also lists
+    /// `hello-redox`. Only an exact match counts as the package being
+    /// available.
+    #[test]
+    fn package_names_are_matched_exactly() {
+        let names = package_names(b"1: nushell\n2: hello-redox\n");
+        assert!(!names.iter().any(|found| found == "hello"));
+        assert!(names.iter().any(|found| found == "hello-redox"));
     }
 }
