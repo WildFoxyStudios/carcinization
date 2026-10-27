@@ -302,6 +302,31 @@ recipe, because `debhelper` is not used.
 
 `recipes/wip/deb-hello` is a working example.
 
+### Debian packages on the guest
+
+The `apt` frontends install `.deb` packages from a Debian mirror. Three
+differences between Redox and a glibc system have to be worked around, and
+they are worth knowing about before changing that code.
+
+**`wget` never finishes.** The GNU `wget` port for Redox does not recognise
+where the HTTP response body ends: it writes the response headers into the
+output file and then waits forever for more data. `curl` handles the
+response correctly, so it is the one the frontends use. `wget` is only
+fallback for the systems where `curl` is not installed.
+
+**`pkg` exits successfully when it fails.** `pkg install` reports a package
+that its repository does not have with an error message, but still exits with
+a success status. The frontends cannot use that status to find out whether a
+request was satisfied, so they ask the repository with `pkg search` instead,
+and take the packages it does not have from the Debian mirror.
+
+**The filesystem has no file descriptor based metadata calls.** `redoxfs`
+implements `fchown`, but not `fchmod` nor `futimens`, and it is the path
+based `chmod` that works. The `tar` crate sets the permissions and the
+modification times of the files it extracts with the descriptor based calls,
+so unpacking a `.deb` with it fails. The extraction is done by hand instead:
+the contents are written and the permissions are set on the path.
+
 ### Packages excluded by their license
 
 Not every program can be shipped as a Carcinization OS package. A recipe

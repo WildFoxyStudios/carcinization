@@ -28,7 +28,7 @@ $VBM modifyvm "$VM" --uartmode1 file "$BUILD/serial.log"
 $VBM modifyvm "$VM" --usb off
 $VBM modifyvm "$VM" --keyboard ps2
 $VBM modifyvm "$VM" --mouse ps2
-$VBM modifyvm "$VM" --audio-driver hda
+$VBM modifyvm "$VM" --audio-driver "${VB_AUDIO:-pulse}"
 $VBM modifyvm "$VM" --audiocontroller hda
 $VBM modifyvm "$VM" --audioout on
 $VBM modifyvm "$VM" --nestedpaging on
